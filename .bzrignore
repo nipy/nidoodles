@@ -1,0 +1,5 @@
+build
+.coverage
+**/.coverage
+dist
+nipy_ui.egg-info
