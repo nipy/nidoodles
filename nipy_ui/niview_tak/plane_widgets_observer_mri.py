@@ -13,6 +13,8 @@ INTERACT_CURSOR, MOVE_CURSOR, COLOR_CURSOR, SELECT_CURSOR, DELETE_CURSOR, LABEL_
 
 from plane_widgets_observer import PlaneWidgetObserver
 
+debug = False
+
 class PlaneWidgetObserverMRI(PlaneWidgetObserver):
     """
     CLASS: PlaneWidgetObserverMRI
@@ -25,7 +27,8 @@ class PlaneWidgetObserverMRI(PlaneWidgetObserver):
         if imageData is None: return 
         self.imageData = imageData
         if not self.hasData:
-            print "PlaneWidgetObserverMRI(", self.orientation,").. AddObserver(self.interaction_event)"
+            if debug:
+                print "PlaneWidgetObserverMRI(", self.orientation,").. AddObserver(self.interaction_event)"
             self.pw.AddObserver('InteractionEventMRI', self.interaction_event)
             self.connect("scroll_event", self.scroll_widget_slice)
             self.hasData = 1
@@ -313,7 +316,8 @@ class PlaneWidgetObserverMRI(PlaneWidgetObserver):
         self.Render()
 
     def update_plane(self):
-        print "PlaneWidgetObserver.update_plane()"
+        if debug:
+            print "PlaneWidgetObserver.update_plane()"
         p1 = self.pw.GetPoint1()
         p2 = self.pw.GetPoint2()
         o = self.pw.GetOrigin()

@@ -148,7 +148,8 @@ class PlaneWidgetsXYZ(MarkerWindowInteractor):
             marker, label = args
             marker.set_label(label)
             
-            print "Create VTK-Text", marker.get_label()
+            if debug:
+                print "Create VTK-Text", marker.get_label()
             text = vtk.vtkVectorText()
             text.SetText(marker.get_label())
             textMapper = vtk.vtkPolyDataMapper()
@@ -194,7 +195,8 @@ class PlaneWidgetsXYZ(MarkerWindowInteractor):
             actor.GetProperty().SetColor( marker.get_color() )
             actor.GetProperty().SetRepresentationToWireframe()
             actor.GetProperty().SetLineWidth(2.0)
-            print "PlaneWidgetsXYZ.update_viewer(): self.renderer.AddActor(actor)"
+            if debug:
+                print "PlaneWidgetsXYZ.update_viewer(): self.renderer.AddActor(actor)"
             self.renderer.AddActor(actor)
             self.boxes[marker] = actor
         elif event=='unselect marker':
@@ -207,7 +209,8 @@ class PlaneWidgetsXYZ(MarkerWindowInteractor):
         
         
     def add_marker(self, marker):
-        print "PlaneWidgetsXYZ.add_marker(): self.renderer.AddActor(marker)"
+        if debug:
+            print "PlaneWidgetsXYZ.add_marker(): self.renderer.AddActor(marker)"
         self.renderer.AddActor(marker)
 
         text = vtk.vtkVectorText()
@@ -224,15 +227,18 @@ class PlaneWidgetsXYZ(MarkerWindowInteractor):
         textActor.SetCamera(self.camera)
         textActor.GetProperty().SetColor(marker.get_label_color())
         if EventHandler().get_labels_on():
-            print "VisibilityOn"
+            if debug:
+                print "VisibilityOn"
             textActor.VisibilityOn()
         else:
-            print "VisibilityOff"
+            if debug:
+                print "VisibilityOff"
             textActor.VisibilityOff()
 
 
         self.textActors[marker] = textActor
-        print "PlaneWidgetsXYZ.add_marker(): self.renderer.AddActor(textActor)"
+        if debug:
+            print "PlaneWidgetsXYZ.add_marker(): self.renderer.AddActor(textActor)"
         self.renderer.AddActor(textActor)
 
     def remove_marker(self, marker):
@@ -242,18 +248,21 @@ class PlaneWidgetsXYZ(MarkerWindowInteractor):
 
     def _plane_widget_boilerplate(self, pw, key, color, index, orientation):
 
-        print "PlaneWidgetsXYZ._plane_widget_boilerplate(", index , orientation,")"
+        if debug:
+            print "PlaneWidgetsXYZ._plane_widget_boilerplate(", index , orientation,")"
         pw.TextureInterpolateOn()
         #pw.SetResliceInterpolateToCubic()
         pw.SetKeyPressActivationValue(key)
-        print "pw " , orientation, ".SetPicker(self.sharedPicker)"
+        if debug:
+            print "pw " , orientation, ".SetPicker(self.sharedPicker)"
         pw.SetPicker(self.sharedPicker)
         pw.GetPlaneProperty().SetColor(color)
         pw.DisplayTextOn()
         pw.SetInput(self.imageData)
         pw.SetPlaneOrientation(orientation)
         pw.SetSliceIndex(int(index))
-        print "pw " , orientation, ".SetInteractor(self.interactor)"
+        if debug:
+            print "pw " , orientation, ".SetInteractor(self.interactor)"
         pw.SetInteractor(self.interactor)
         pw.On()
         pw.UpdatePlacement()
@@ -303,12 +312,14 @@ class PlaneWidgetsXYZ(MarkerWindowInteractor):
     def OnButtonDown(self, wid, event):
         """Mouse button pressed."""
 
-        print "PlaneWidgetsXYZ.OnButtonDown(): event=", event
+        if debug:
+            print "PlaneWidgetsXYZ.OnButtonDown(): event=", event
 
         self.lastPntsXYZ = ( self.get_plane_points(self.pwX),
                              self.get_plane_points(self.pwY),
                              self.get_plane_points(self.pwZ))
-        print "PlaneWidgetsXYZ.OnButtonDown(): self.lastPntsXYZ=", self.lastPntsXYZ
+        if debug:
+            print "PlaneWidgetsXYZ.OnButtonDown(): self.lastPntsXYZ=", self.lastPntsXYZ
                              
 
         MarkerWindowInteractor.OnButtonDown(self, wid, event)
@@ -317,7 +328,8 @@ class PlaneWidgetsXYZ(MarkerWindowInteractor):
     def OnButtonUp(self, wid, event):
         """Mouse button released."""
         
-        print "PlaneWidgetsXYZ.OnButtonUp(): event=", event
+        if debug:
+            print "PlaneWidgetsXYZ.OnButtonUp(): event=", event
 
         if not hasattr(self, 'lastPntsXYZ'): return
         MarkerWindowInteractor.OnButtonUp(self, wid, event)

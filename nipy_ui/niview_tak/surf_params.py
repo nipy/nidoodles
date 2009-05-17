@@ -18,6 +18,8 @@ from decimate_filter import DecimateFilter
 
 from color_seq import colorSeq
 
+debug = False
+
 class SurfParams(Viewer):
     """
     CLASS: SurfParams
@@ -126,7 +128,8 @@ class SurfParams(Viewer):
         self.update_properties()
 
     def set_image_data(self, imageData):
-        print "SurfParams.set_image_data(", imageData,")"
+        if debug:
+            print "SurfParams.set_image_data(", imageData,")"
         self.marchingCubes.SetInput(imageData)
         x1,x2,y1,y2,z1,z2 = imageData.GetExtent()
         sx, sy, sz = imageData.GetSpacing()

@@ -9,7 +9,8 @@ class VTKSurface(vtk.vtkActor):
     """
 
     def set_matrix(self, registration_mat):
-        print "VTKSurface.set_matrix(", registration_mat, ")!!"
+        if debug:
+            print "VTKSurface.set_matrix(", registration_mat, ")!!"
         def vtkmatrix4x4_to_array(vtkmat):
             scipy_array = zeros((4,4), 'd')
             for i in range(0,4):
@@ -31,7 +32,8 @@ class VTKSurface(vtk.vtkActor):
         mat2xform = vtk.vtkMatrixToLinearTransform()
         mat2xform.SetInput(mat)
         
-        print "calling SetUserTransform(", mat2xform, ")"
+        if debug:
+            print "calling SetUserTransform(", mat2xform, ")"
         self.SetUserTransform(mat2xform) # see vtk Prop3d docs
         self.Modified()
         # how do we like update the render tree or somethin..
@@ -139,7 +141,8 @@ class VTKSurface(vtk.vtkActor):
         renderer.AddActor(self.contours)
         # XXX: mcc will this work?!?
 
-        print "PlaneWidgetsXYZ.set_image_data: setting EventHandler.set_vtkactor(self.contours)!"
+        if debug:
+            print "PlaneWidgetsXYZ.set_image_data: setting EventHandler.set_vtkactor(self.contours)!"
         EventHandler().set_vtkactor(self.contours)
 
         #writer = vtk.vtkSTLWriter()

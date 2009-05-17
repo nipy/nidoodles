@@ -5,6 +5,8 @@ import vtk
 import os
 from vtk.util.vtkImageImportFromArray import vtkImageImportFromArray
 
+debug = False
+
 class vtkNiftiImageReader(object):
     __defaultFilePattern=""#"dti_FA"
 
@@ -32,7 +34,8 @@ class vtkNiftiImageReader(object):
         #self.__data=self.__nim.asarray().astype("f")#.swapaxes(0,2)
         
     def Update(self):
-        print "Loading ", self.__filename
+        if debug:
+            print "Loading ", self.__filename
         #read in the data after directory was set
         self.__nim=nifti.NiftiImage(self.__filename)
         self.__data=self.__nim.asarray().astype("f")#.swapaxes(0,2)
@@ -65,8 +68,9 @@ class vtkNiftiImageReader(object):
         elif len(args)==2:
             self.__spacing=args+(0.0,)
         elif len(args)<1:
-            print "in vtkNifti.SetDataSpacing"
-            print "negative number of dimensions not supported! ;-)"
+            if debug:
+                print "in vtkNifti.SetDataSpacing"
+                print "negative number of dimensions not supported! ;-)"
         else:
             self.__spacing=args[:3]
         print args,self.__spacing

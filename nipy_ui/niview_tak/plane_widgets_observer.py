@@ -43,9 +43,11 @@ class PlaneWidgetObserver(MarkerWindowInteractor):
         if imageData is None: return 
         self.imageData = imageData
         if not self.hasData:
-            print "PlaneWidgetObserver(", self.orientation,").. AddObserver(self.interaction_event)"
+            if debug:
+                print "PlaneWidgetObserver(", self.orientation,").. AddObserver(self.interaction_event)"
             foo = self.pw.AddObserver('InteractionEvent', self.interaction_event)
-            print "PlaneWidgetObserver.set_image_data(): AddObserver call returns ", foo
+            if debug:
+                print "PlaneWidgetObserver.set_image_data(): AddObserver call returns ", foo
             self.connect("scroll_event", self.scroll_widget_slice)
             self.hasData = 1
 
@@ -398,7 +400,8 @@ class PlaneWidgetObserver(MarkerWindowInteractor):
         self.Render()
 
     def add_ring_actor(self, marker):
-        print "Adding ring-actor"
+        if debug:
+            print "Adding ring-actor"
         ringActor = RingActor(marker, self.pw, lineWidth=self.defaultRingLine)
         vis = ringActor.update()
         self.renderer.AddActor(ringActor)

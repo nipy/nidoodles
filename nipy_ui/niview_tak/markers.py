@@ -5,6 +5,8 @@ import copy
 from image_reader import widgets
 import numpy as n
 
+debug = False
+
 class Marker(vtk.vtkActor):
     """
     CLASS: Marker
@@ -16,11 +18,14 @@ class Marker(vtk.vtkActor):
 
         if (radius == None):
             pars = widgets.get_params()
-            print "pars.dfov is ", pars.dfov
-            print "pars.dimensions[0] is" , pars.dimensions[0]
+            if debug:
+                print "pars.dfov is ", pars.dfov
+            if debug:
+                print "pars.dimensions[0] is" , pars.dimensions[0]
             ratio = float(pars.dfov)/float(pars.dimensions[0])
             radius = ratio * 3
-            print "setting radius=", radius
+            if debug:
+                print "setting radius=", radius
             
 
         if rgb is None: rgb = (0,0,1)
@@ -79,7 +84,8 @@ class Marker(vtk.vtkActor):
         return self.sphere.SetRadius(s)
 
     def set_color(self, color):
-        print "Marker.GetProperty().SetColor(", color, ")"
+        if debug:
+            print "Marker.GetProperty().SetColor(", color, ")"
         self.GetProperty().SetColor( color )
 
     def get_color(self):

@@ -1,16 +1,16 @@
 import gtk
 import os 
 from shared import shared
-from vtksurface import VTKSurface
+#from vtksurface import VTKSurface
 
 from gtkutils import MyToolbar, error_msg
 from image_reader import widgets, GladeHandlers, Params
 from events import EventHandler, UndoRegistry, Viewer
 from vtkNifti import vtkNiftiImageReader
 
-from afni_read import afni_header_read
-
 import pickle
+
+debug = False
 
 class MainToolbar(MyToolbar):
     """
@@ -23,16 +23,16 @@ class MainToolbar(MyToolbar):
         ('Open', 'Load new 3d MRI in Nifti format', gtk.STOCK_NEW, 'load_mri'),
         #('Load VTK File', 'Load new VTK mesh', gtk.STOCK_NEW, 'load_vtk'),
         #('Load Registration file', 'Load .reg file', gtk.STOCK_NEW, 'load_registration'),
-        ('Markers', 'Load markers from file', gtk.STOCK_OPEN, 'load_from'),
-        ('Save', 'Save markers', gtk.STOCK_SAVE, 'save'),
-        ('Save as ', 'Save markers as new filename', gtk.STOCK_SAVE_AS, 'save_as'),
+        #('Markers', 'Load markers from file', gtk.STOCK_OPEN, 'load_from'),
+        #('Save', 'Save markers', gtk.STOCK_SAVE, 'save'),
+        #('Save as ', 'Save markers as new filename', gtk.STOCK_SAVE_AS, 'save_as'),
         #('Save registration as', 'Save registration as new filename', gtk.STOCK_SAVE_AS, 'save_registration_as'),
-        (None, None, None, None),
-        ('Toggle ', 'Toggle labels display', gtk.STOCK_BOLD, 'toggle_labels'),
-        ('Color', 'Select default marker color', gtk.STOCK_SELECT_COLOR, 'choose_color'),
-        (None, None, None, None),
-        ('Undo', 'Undo changes', gtk.STOCK_UNDO, 'undo_last'),
-        (None, None, None, None),
+        #(None, None, None, None),
+        #('Toggle ', 'Toggle labels display', gtk.STOCK_BOLD, 'toggle_labels'),
+        #('Color', 'Select default marker color', gtk.STOCK_SELECT_COLOR, 'choose_color'),
+        #(None, None, None, None),
+        #('Undo', 'Undo changes', gtk.STOCK_UNDO, 'undo_last'),
+        #(None, None, None, None),
         #('Properties', 'Set the plane properties', gtk.STOCK_PROPERTIES, 'set_properties'),
         #('Surface', 'Set the surface rendering properties', gtk.STOCK_PROPERTIES, 'show_surf_props'),
         #('Correlation', 'Display Correlations', gtk.STOCK_PROPERTIES, 'show_correlation_props'),
@@ -58,11 +58,12 @@ class MainToolbar(MyToolbar):
         # opening .mat file with correlation info
         x = scipy.io.loadmat(fname)
         y = x['func_proj']
-        print "ch_cmap is " , y.ch_cmap
-        print "ch_idx is " , y.ch_idx
-        print "ch_names is " , y.ch_names
-        print "corr_mat is " , y.corr_mat
-        print "disp_data is" , y.disp_data
+        if debug:
+            print "ch_cmap is " , y.ch_cmap
+            print "ch_idx is " , y.ch_idx
+            print "ch_names is " , y.ch_names
+            print "corr_mat is " , y.corr_mat
+            print "disp_data is" , y.disp_data
 
 
     def show_correlation_props(self, button):
@@ -225,7 +226,8 @@ class MainToolbar(MyToolbar):
         self.propDialog.show()
 
     def load_mri(self, *args):
-        print "loc3djr_maintoolbar.load_mri()"
+        if debug:
+            print "loc3djr_maintoolbar.load_mri()"
         if self.niftiFilename is not None:
             fname=self.niftiFilename
         else:
@@ -253,20 +255,25 @@ class MainToolbar(MyToolbar):
         else: 
             pars.extension=".".join(fname.split(".")[-1:])
             pars.pattern=".".join(fname.split(os.path.sep)[-1].split(".")[:-1])
-        print "pars.extension", pars.extension
+        if debug:
+            print "pars.extension", pars.extension
         
-        print "pars.pattern", pars.pattern
+        if debug:
+            print "pars.pattern", pars.pattern
         pars.dir=os.path.dirname(fname)#sep.join(fname.split(os.path.sep)[:-1])
-        print "pars.dir", pars.dir
+        if debug:
+            print "pars.dir", pars.dir
 
         pars.readerClass='vtkNiftiImageReader'
         reader=widgets.get_reader(pars)
         pars.first=1
         pars.last=reader.GetDepth()
 
-        print "reader=", reader
+        if debug:
+            print "reader=", reader
         if not reader:
-            print "hit cancel, see if we can survive"
+            if debug:
+                print "hit cancel, see if we can survive"
         else:
             pars=widgets.get_params()
             pars=widgets.validate(pars)
@@ -277,12 +284,15 @@ class MainToolbar(MyToolbar):
             #maybe its in vtkImageImportFromArray
             imageData.SetExtent(reader.GetDataExtent())
           
-            print "loc3djr_maintoolbar.load_mri(): reader.GetOutput() is " , imageData
-            print "load_mri(): imageData.SetSpacing(", reader.GetDataSpacing(), " )"
+            if debug:
+                print "loc3djr_maintoolbar.load_mri(): reader.GetOutput() is " , imageData
+                print "load_mri(): imageData.SetSpacing(", reader.GetDataSpacing(), " )"
             imageData.SetSpacing(reader.GetDataSpacing())
-            print "calling EventHandler().notify('set image data', imageData)"
+            if debug:
+                print "calling EventHandler().notify('set image data', imageData)"
             EventHandler().notify('set image data', imageData)
-            print "calling EventHandler().setNifti()"
+            if debug:
+                print "calling EventHandler().setNifti()"
             EventHandler().setNifti(reader.GetQForm(),reader.GetDataSpacing())
 
         ### #  not currently used
@@ -325,13 +335,15 @@ class MainToolbar(MyToolbar):
         fname = dialog.get_filename()
         dialog.destroy()
         if response == gtk.RESPONSE_OK:
-            print "loading vtk file: " , fname
+            if debug:
+                print "loading vtk file: " , fname
             # this constructor adds the mesh to the renderer
             self.owner.pwxyz.vtksurface = VTKSurface(fname, self.owner.pwxyz.renderer)
         
         
     def load_image(self, *args):
-        print "loc3djr_maintoolbar.load_image()"
+        if debug:
+            print "loc3djr_maintoolbar.load_image()"
         debug = False
         reader = None
 
@@ -369,19 +381,24 @@ class MainToolbar(MyToolbar):
             dlg.hide()
 
 
-        print "reader=", reader
+        if debug:
+            print "reader=", reader
         if not reader:
-            print "hit cancel, see if we can survive"
+            if debug:
+                print "hit cancel, see if we can survive"
         else:
             imageData = reader.GetOutput()
-            print "pars=", pars
-            print "loc3djr_maintoolbar.load_image(): reader.GetOutput() is " , imageData
-            print "load_image(): imageData.SetSpacing(", reader.GetDataSpacing(), " )"
+            if debug:
+                print "pars=", pars
+                print "loc3djr_maintoolbar.load_image(): reader.GetOutput() is " , imageData
+                print "load_image(): imageData.SetSpacing(", reader.GetDataSpacing(), " )"
             imageData.SetSpacing(reader.GetDataSpacing())
-            print "calling EventHandler().notify('set image data', imageData)"
+            if debug:
+                print "calling EventHandler().notify('set image data', imageData)"
             EventHandler().notify('set image data', imageData)
             if type(reader) == vtkNiftiImageReader:
-                print "calling EventHandler().setNifti()"
+                if debug:
+                    print "calling EventHandler().setNifti()"
                 #XXX EventHandler().setNifti(reader.GetFilename())
                 EventHandler().setNifti(reader.GetQForm())
 
@@ -413,10 +430,12 @@ class MainToolbar(MyToolbar):
         fname = dialog.get_filename()
         dialog.destroy()
         if response == gtk.RESPONSE_OK:
-            print "loading reg file: " , fname
+            if debug:
+                print "loading reg file: " , fname
             reg_filename = fname
             registration_mat = pickle.load(file(reg_filename, 'r'))
-            print "load_registration(): dude registration_mat is ", registration_mat
+            if debug:
+                print "load_registration(): dude registration_mat is ", registration_mat
             # XXX mcc arghhghhh
             self.owner.pwxyz.vtksurface.set_matrix(registration_mat)
 

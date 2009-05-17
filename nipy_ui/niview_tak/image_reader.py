@@ -17,6 +17,8 @@ import distutils.sysconfig
 
 from vtkNifti import vtkNiftiImageReader
 
+debug = False
+
 # We put all of our gtk signal handlers into a class.  This lets us bind
 # all of them at once, because their names are in the class dict.
 class GladeHandlers:
@@ -81,21 +83,26 @@ class GladeHandlers:
 
     def on_buttonPreview_clicked(button=None):
         pars = widgets.get_params()
-        print "type(pars)=", type(pars)
+        if debug:
+            print "type(pars)=", type(pars)
         pars = widgets.validate(pars)
         if pars is None: return
         #print "on_buttonPreview_clicked: pars = ", pars
         reader = widgets.get_reader(pars)
         inDim1, inDim2 = pars.dimensions
-        print "on_buttonPreview_clicked(): pars.dimensions = ", pars.dimensions
+        if debug:
+            print "on_buttonPreview_clicked(): pars.dimensions = ", pars.dimensions
         
         outDim1, outDim2 = widgets.outDim
-        print "on_buttonPreview_clicked(): outDim = ", widgets.outDim
+        if debug:
+            print "on_buttonPreview_clicked(): outDim = ", widgets.outDim
         scale1 = outDim1/inDim1
         scale2 = outDim2/inDim2
-        print "on_buttonPreview_clicked(): scale1 = ", scale1, "scale2=", scale2
+        if debug:
+            print "on_buttonPreview_clicked(): scale1 = ", scale1, "scale2=", scale2
         resample = vtk.vtkImageResample()
-        print "on_buttonPreview_clicked(): calling reader.GetOutput()"
+        if debug:
+            print "on_buttonPreview_clicked(): calling reader.GetOutput()"
         resample.SetInput(reader.GetOutput())
         resample.SetAxisMagnificationFactor(0, scale1)
         resample.SetAxisMagnificationFactor(1, scale2)
@@ -212,7 +219,8 @@ class WidgetsWrapper:
         return self.widgets.get_widget(key)
 
     def get_params(self):
-        print "WidgetsWrapper.get_params()!"
+        if debug:
+            print "WidgetsWrapper.get_params()!"
         
         if widgets['radiobuttonDim256'].get_active(): dim = 256, 256
         elif widgets['radiobuttonDim512'].get_active(): dim = 512, 512
@@ -291,7 +299,8 @@ class WidgetsWrapper:
 
     def set_params(self, o):
 
-       print "WidgetsWrapper.set_params()!"
+       if debug:
+            print "WidgetsWrapper.set_params()!"
        
        if o.readerClass=='vtkNiftiImageReader':
             bytes2=3
@@ -381,7 +390,8 @@ class WidgetsWrapper:
         if o.readerClass!='vtkNiftiImageReader':
             fnames = self.get_file_names(o)
             for fname in fnames:
-                print "validate(): doing fname ", fname
+                if debug:
+                    print "validate(): doing fname ", fname
                 if not os.path.exists(fname):
                     return error_msg('Could not find file %s' % fname, dlg)
                 if o.readerClass=='vtkBMPReader':
@@ -411,13 +421,15 @@ class WidgetsWrapper:
 
         # Depth Field Of View
         val = o.dfov = str2posnum_or_err(o.dfov, widgets['labelDFOV'], dlg)
-        print "dfov=", val
+        if debug:
+            print "dfov=", val
         if val is None: return None
 
         # Spacing between slices
         val = o.spacing = str2posnum_or_err(
             o.spacing, widgets['labelSpacing'], dlg)
-        print "spacing=", val
+        if debug:
+            print "spacing=", val
         if val is None: return None
 
         # Size of header
@@ -426,7 +438,8 @@ class WidgetsWrapper:
            val = o.header = str2int_or_err(
               o.header, widgets['labelHeader'], dlg)
            if val is None: return None
-        print "header=", val
+        if debug:
+            print "header=", val
 
         # Data mask
         if o.mask is not None:
@@ -436,7 +449,8 @@ class WidgetsWrapper:
                val = o.mask = str2int_or_err(
                    o.mask, widgets['labelMask'], dlg)
                if val is None: return None
-        print "mask=", val
+        if debug:
+            print "mask=", val
 
         return o
     
@@ -568,7 +582,8 @@ def get_reader(o):
             pattern += '.' + o.extension
         reader.SetFilePattern(pattern)
     
-        print "reader.SetDataSpacing(", o.dfov/o.dimensions[0], o.dfov/o.dimensions[1], o.spacing , "). dfov=", o.dfov, "dimensions=", o.dimensions, "spacing=", o.spacing
+        if debug:
+            print "reader.SetDataSpacing(", o.dfov/o.dimensions[0], o.dfov/o.dimensions[1], o.spacing , "). dfov=", o.dfov, "dimensions=", o.dimensions, "spacing=", o.spacing
                               
        
         reader.SetDataSpacing(float(o.dfov)/float(o.dimensions[0]),

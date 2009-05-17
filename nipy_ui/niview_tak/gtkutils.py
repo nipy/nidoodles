@@ -6,6 +6,8 @@ from gtk import gdk
 
 import datetime
 
+debug = False
+
 def is_string_like(obj):
     if hasattr(obj, 'shape'): return 0 # this is a workaround
                                        # for a bug in numeric<23.1
@@ -153,7 +155,8 @@ class Dialog_FileSelection(gtk.FileSelection):
         """wrap some of the file selection boilerplate.  okCallback is
         a function that takes a Dialog_FileSelection instance as a
         single arg."""
-        print "Dialog_FileSelection.__init__"
+        if debug:
+            print "Dialog_FileSelection.__init__"
         self.defaultDir = defaultDir
         self.okCallback = okCallback
         gtk.FileSelection.__init__(self, title=title)
@@ -400,7 +403,8 @@ def get_num_range(minLabel='Min', maxLabel='Max',
                     minVal = datetime.time(x[0], x[1], x[2])
                 except ValueError:
                     msg = exception_to_str('ValueError: minVal not in HH:MM:SS format')
-                print "get_num_range (as_times=True): minVal = " , str(minVal)
+                if debug:
+                    print "get_num_range (as_times=True): minVal = " , str(minVal)
             else:
                 minVal = str2num_or_err(entryMin.get_text(), labelMin, parent)
             if minVal is None: continue
@@ -410,7 +414,8 @@ def get_num_range(minLabel='Min', maxLabel='Max',
                     maxVal = datetime.time(x[0], x[1], x[2])
                 except ValueError:
                     msg = exception_to_str('ValueError: maxVal not in HH:MM:SS format')
-                print "get_num_range (as_times=True): maxVal = " , str(maxVal)
+                if debug:
+                    print "get_num_range (as_times=True): maxVal = " , str(maxVal)
             else:
                 maxVal = str2num_or_err(entryMax.get_text(), labelMax, parent)
             if maxVal is None: continue

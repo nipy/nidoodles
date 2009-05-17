@@ -1,6 +1,8 @@
 import gtk
 from events import EventHandler
 
+debug=False
+
 class InteractorToolbar(gtk.Toolbar):
     """
     CLASS: InteractorToolbar
@@ -43,6 +45,7 @@ class InteractorToolbar(gtk.Toolbar):
         self.show_all()
 
     def notify(button, event, data):
-        print "notify ", button, event, data
+        if debug:
+            print "notify ", button, event, data
         EventHandler().notify(data)
 

@@ -7,6 +7,8 @@ import re
 
 INTERACT_CURSOR, MOVE_CURSOR, COLOR_CURSOR, SELECT_CURSOR, DELETE_CURSOR, LABEL_CURSOR = gtk.gdk.ARROW, gtk.gdk.HAND2, gtk.gdk.SPRAYCAN, gtk.gdk.TCROSS, gtk.gdk.X_CURSOR, gtk.gdk.PENCIL
 
+debug = False
+
 class MarkerWindowInteractor(GtkGLExtVTKRenderWindowInteractor, Viewer):
     """
     CLASS: MarkerWindowInteractor
@@ -58,25 +60,32 @@ class MarkerWindowInteractor(GtkGLExtVTKRenderWindowInteractor, Viewer):
         if event.find('mouse1')==0:
             self.mouse1_mode_change(event)
         if event=='mouse1 interact':
-            print "MarkerWindowInteractor.set_mouse1_to_interact()"
+            if debug:
+                print "MarkerWindowInteractor.set_mouse1_to_interact()"
             self.set_mouse1_to_interact()
         elif event=='vtk interact':
-            print "MarkerWindowInteractor.set_mouse1_to_vtkinteract()"
+            if debug:
+                print "MarkerWindowInteractor.set_mouse1_to_vtkinteract()"
             self.set_mouse1_to_vtkinteract()
         elif event=='mouse1 color':
-            print "MarkerWindowInteractor.set_mouse1_to_color()"
+            if debug:
+                print "MarkerWindowInteractor.set_mouse1_to_color()"
             self.set_mouse1_to_color()
         elif event=='mouse1 delete':
-            print "MarkerWindowInteractor.set_mouse1_to_delete()"
+            if debug:
+                print "MarkerWindowInteractor.set_mouse1_to_delete()"
             self.set_mouse1_to_delete()
         elif event=='mouse1 label': 
-            print "MarkerWindowInteractor.set_mouse1_to_label()"
+            if debug:
+                print "MarkerWindowInteractor.set_mouse1_to_label()"
             self.set_mouse1_to_label()
         elif event=='mouse1 select':
-            print "MarkerWindowInteractor.set_mouse1_to_select()"
+            if debug:
+                print "MarkerWindowInteractor.set_mouse1_to_select()"
             self.set_mouse1_to_select()
         elif event=='mouse1 move':
-            print "MarkerWindowInteractor.set_mouse1_to_move()"
+            if debug:
+                print "MarkerWindowInteractor.set_mouse1_to_move()"
             self.set_mouse1_to_move()
         elif event=='render off':
             self.renderOn = 0
@@ -102,11 +111,13 @@ class MarkerWindowInteractor(GtkGLExtVTKRenderWindowInteractor, Viewer):
         pass
 
     def set_interact_mode(self):
-        print "set_interact_mode()!!!!"
+        if debug:
+            print "set_interact_mode()!!!!"
         self.vtk_interact_mode = False
     
     def set_vtkinteract_mode(self):
-        print "set_vtkinteract_mode()!!!!"
+        if debug:
+            print "set_vtkinteract_mode()!!!!"
 
         if (self.vtk_interact_mode == False):
             # mcc XXX: ignore this
@@ -116,7 +127,8 @@ class MarkerWindowInteractor(GtkGLExtVTKRenderWindowInteractor, Viewer):
     
     def set_mouse1_to_interact(self):
 
-        print "MarkerWindowInteractor.set_mouse1_to_interact()"
+        if debug:
+            print "MarkerWindowInteractor.set_mouse1_to_interact()"
 
         self.vtk_interact_mode = False
 
@@ -134,12 +146,14 @@ class MarkerWindowInteractor(GtkGLExtVTKRenderWindowInteractor, Viewer):
             self.window.set_cursor (cursor)
 
     def vtkinteraction_event(self, *args):
-        print "vtkinteraction_event!!!"
+        if debug:
+            print "vtkinteraction_event!!!"
         self.Render()
 
     def set_mouse1_to_vtkinteract(self):
 
-        print "MarkerWindowInteractor.set_mouse1_to_vtkinteract()"
+        if debug:
+            print "MarkerWindowInteractor.set_mouse1_to_vtkinteract()"
 
         self.set_vtkinteract_mode()
 
@@ -300,14 +314,17 @@ class MarkerWindowInteractor(GtkGLExtVTKRenderWindowInteractor, Viewer):
         self.lastCamera = self.get_camera_fpu()
         m = self.get_pointer()
         ctrl, shift = self._GetCtrlShift(event)
-        print "MarkerWindowInteractor.OnButtonDown(): ctrl=", ctrl,"shift=",shift,"button=",event.button
+        if debug:
+            print "MarkerWindowInteractor.OnButtonDown(): ctrl=", ctrl,"shift=",shift,"button=",event.button
         self._Iren.SetEventInformationFlipY(m[0], m[1], ctrl, shift,
                                             chr(0), 0, None)
 
-        print "MarkerWindowInteractor.OnButtonDown(): pressFuncs=", self.pressFuncs, "pressHooks=", self.pressHooks
+        if debug:
+            print "MarkerWindowInteractor.OnButtonDown(): pressFuncs=", self.pressFuncs, "pressHooks=", self.pressHooks
 
         if event.button in self.interactButtons:
-            print "self.vtk_interact_mode =", self.vtk_interact_mode
+            if debug:
+                print "self.vtk_interact_mode =", self.vtk_interact_mode
             if (self.vtk_interact_mode == False):
                 self.pressFuncs[event.button]()            
 
@@ -322,13 +339,15 @@ class MarkerWindowInteractor(GtkGLExtVTKRenderWindowInteractor, Viewer):
         """Mouse button released."""
         m = self.get_pointer()
         ctrl, shift = self._GetCtrlShift(event)
-        print "MarkerWindowInteractor.OnButtonUp(): ctrl=", ctrl,"shift=",shift, "button=",event.button
+        if debug:
+            print "MarkerWindowInteractor.OnButtonUp(): ctrl=", ctrl,"shift=",shift, "button=",event.button
         self._Iren.SetEventInformationFlipY(m[0], m[1], ctrl, shift,
                                             chr(0), 0, None)
 
 
         if event.button in self.interactButtons:
-            print "self.vtk_interact_mode =", self.vtk_interact_mode
+            if debug:
+                print "self.vtk_interact_mode =", self.vtk_interact_mode
             if (self.vtk_interact_mode == False):
                 self.releaseFuncs[event.button]()            
 

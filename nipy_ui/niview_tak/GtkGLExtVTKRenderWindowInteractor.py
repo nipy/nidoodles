@@ -144,7 +144,8 @@ class GtkGLExtVTKRenderWindowInteractor(gtk.gtkgl.DrawingArea):
         return ctrl, shift
 
     def OnButtonDown(self, wid, event):
-        print "GtkGLExtVTKRenderWindowInteractor.OnButtonDown()"
+        if debug:
+            print "GtkGLExtVTKRenderWindowInteractor.OnButtonDown()"
         """Mouse button pressed."""
         m = self.get_pointer()
         ctrl, shift = self._GetCtrlShift(event)

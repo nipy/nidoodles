@@ -6,6 +6,8 @@ import socket
 
 from scipy import array, zeros
 
+debug=False
+
 class Viewer:
     def update_viewer(self, event, *args):
         raise NotImplementedError
@@ -153,7 +155,8 @@ class EventHandler:
                 conv_marker=marker.convert_coordinates(self.__NiftiQForm,self.__NiftiSpacings)
                 center = conv_marker.get_center()
                 request = "1,%i,%i,%i" % (int(center[0]),int(center[1]),int(center[2]))
-            print "Marker", center, ":", self.query_talairach(request)
+            if debug:
+                print "Marker", center, ":", self.query_talairach(request)
                 
         
     def setNifti(self,QForm,spacings):
@@ -161,11 +164,13 @@ class EventHandler:
         self.__NiftiSpacings=spacings
 
     def set_vtkactor(self, vtkactor):
-        print "EventHandler.set_vtkactor()"
+        if debug:
+            print "EventHandler.set_vtkactor()"
         self.vtkactor = vtkactor
 
     def save_registration_as(self, fname):
-        print "EventHandler.save_registration_as(", fname,")"
+        if debug:
+            print "EventHandler.save_registration_as(", fname,")"
         fh = file(fname, 'w')
 
         # XXX mcc: somehow get the transform for the VTK actor. aiieeee
@@ -176,7 +181,8 @@ class EventHandler:
         mat = self.vtkactor.GetMatrix()
         orient = self.vtkactor.GetOrientation()
         
-        print "EventHandler.save_registration_as(): vtkactor has origin, pos, scale, mat, orient=", loc, pos, scale, mat, orient, "!!"
+        if debug:
+            print "EventHandler.save_registration_as(): vtkactor has origin, pos, scale, mat, orient=", loc, pos, scale, mat, orient, "!!"
 
 
         def vtkmatrix4x4_to_array(vtkmat):
@@ -213,7 +219,8 @@ class EventHandler:
 
     def notify(self, event, *args):
         for observer in self.observers.keys():
-            print "EventHandler.notify(", event, "): calling update_viewer for ", observer
+            if debug:
+                print "EventHandler.notify(", event, "): calling update_viewer for ", observer
             observer.update_viewer(event, *args)
 
     def get_labels_on(self):

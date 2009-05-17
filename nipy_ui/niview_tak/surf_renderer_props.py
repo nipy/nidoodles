@@ -20,6 +20,8 @@ from surf_params import SurfParams
 from decimate_filter import DecimateFilter
 from connect_filter import ConnectFilter
 
+debug=False
+
 class SurfRendererProps(gtk.Window, Viewer):
     """
     CLASS: SurfRendererProps
@@ -101,7 +103,8 @@ class SurfRendererProps(gtk.Window, Viewer):
         if key.lower()=='i':
             if not checkPickerName():
                 return
-            print "Inserting Marker"
+            if debug:
+                print "Inserting Marker"
             x,y = interactor.GetEventPosition()
             picker = vtk.vtkCellPicker()
             picker.PickFromListOn()

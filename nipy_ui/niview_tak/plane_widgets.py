@@ -78,9 +78,9 @@ class PlaneWidgetsWithObservers(gtk.VBox):
         self.pack_start(toolbar, False, False)
         self.mainToolbar = toolbar
         
-        toolbarInteractor = InteractorToolbar()
-        toolbarInteractor.show()
-        toolbarInteractor.set_orientation(gtk.ORIENTATION_VERTICAL)        
+        #toolbarInteractor = InteractorToolbar()
+        #toolbarInteractor.show()
+        #toolbarInteractor.set_orientation(gtk.ORIENTATION_VERTICAL)        
 
 
 
@@ -94,7 +94,7 @@ class PlaneWidgetsWithObservers(gtk.VBox):
         hbox.show()
 
         # add InteractorToolbar to vboxTools
-        vboxTools.pack_start(toolbarInteractor, True, True)
+        #vboxTools.pack_start(toolbarInteractor, True, True)
         # add vboxTools to hbox
         # xxx: mcc
         #self.pack_start(vboxTools, False, False)
