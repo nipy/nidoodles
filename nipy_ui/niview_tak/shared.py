@@ -19,3 +19,5 @@ class Shared(object):
         
 
 shared = Shared()
+
+dirname = "."

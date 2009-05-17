@@ -12,8 +12,11 @@ def view_image(filename=None, surface=None):
     
     window = gtk.Window()
     window.set_title(title)
-    icon = gtk.gdk.pixbuf_new_from_file(os.path.join(dirname,"nipy_logo.ico"))
-    window.set_icon_list(icon)
+    try:
+        icon = gtk.gdk.pixbuf_new_from_file(os.path.join(dirname,"nipy_logo.ico"))
+        window.set_icon_list(icon)
+    except Exception, e:
+        pass
     window.connect("destroy", gtk.main_quit)
     window.connect("delete_event", gtk.main_quit)
     window.set_border_width(1)
