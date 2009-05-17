@@ -10,7 +10,7 @@ from gtk import gdk
 from scipy import array
 from scipy import mean
 from image_reader import widgets, GladeHandlers
-from pbrainlib.gtkutils import error_msg, simple_msg, ButtonAltLabel, \
+from gtkutils import error_msg, simple_msg, ButtonAltLabel, \
      str2posnum_or_err, ProgressBarDialog, make_option_menu, MyToolbar
 from matplotlib.cbook import Bunch
 

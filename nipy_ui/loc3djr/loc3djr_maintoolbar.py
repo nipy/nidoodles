@@ -3,9 +3,10 @@ import os
 from shared import shared
 from vtksurface import VTKSurface
 
-from pbrainlib.gtkutils import MyToolbar
-from image_reader import widgets, GladeHandlers
+from gtkutils import MyToolbar, error_msg
+from image_reader import widgets, GladeHandlers, Params
 from events import EventHandler, UndoRegistry, Viewer
+from vtkNifti import vtkNiftiImageReader
 
 from afni_read import afni_header_read
 
@@ -18,8 +19,8 @@ class MainToolbar(MyToolbar):
     """
 
     toolitems = (
-        ('CT Info', 'Load new 3d image', gtk.STOCK_NEW, 'load_image'),
-        #('MRI Info', 'Load new 3d MRI', gtk.STOCK_NEW, 'load_mri'),
+        ('Load nifti', 'Load new 3d-volume from a nifti-file', gtk.STOCK_NEW, 'load_mri'),
+        ('Load other', 'Load new 3d-volume from Dicom, bmp or raw', gtk.STOCK_NEW, 'load_image'),
         ('Load VTK File', 'Load new VTK mesh', gtk.STOCK_NEW, 'load_vtk'),
         ('Load Registration file', 'Load .reg file', gtk.STOCK_NEW, 'load_registration'),
         ('Markers', 'Load markers from file', gtk.STOCK_OPEN, 'load_from'),
@@ -42,6 +43,7 @@ class MainToolbar(MyToolbar):
         MyToolbar.__init__(self)
 
         self.owner = owner
+        self.niftiFilename=None
 
         # set the default color
         da = gtk.DrawingArea()
@@ -223,38 +225,99 @@ class MainToolbar(MyToolbar):
         self.propDialog.show()
 
     def load_mri(self, *args):
-        # XXX: not currently used
-        dialog = gtk.FileSelection('Choose .HEAD file')
-        dialog.set_transient_for(widgets['dlgReader'])
-        dialog.set_filename(widgets['entryInfoFile'].get_text() or
-                            shared.get_last_dir())
-        response = dialog.run()
-        fname = dialog.get_filename()
-        dialog.destroy()
-        if response == gtk.RESPONSE_OK:
-            d = afni_header_read(fname)
-            brik_dimensions = d['DATASET_DIMENSIONS']
-            print "header.ORIGIN: ", d['ORIGIN']
-            print "header.DATASET_DIMENSIONS: ", d['DATASET_DIMENSIONS']
-            print "header.HISTORY_NOTE: ", d['HISTORY_NOTE']
-            print "header.DELTA: ", d['DELTA']
-            brik_xdim = brik_dimensions[0]
-            brik_ydim = brik_dimensions[1]
-            brik_zdim = brik_dimensions[2]
+        print "loc3djr_maintoolbar.load_mri()"
+        if self.niftiFilename is not None:
+            fname=self.niftiFilename
+        else:
+            dialog = gtk.FileSelection('Choose nifti file')
+            dialog.set_transient_for(widgets['dlgReader'])
+            dialog.set_filename(shared.get_last_dir())
+            response = dialog.run()
+            fname = dialog.get_filename()
+            dialog.destroy()
+            if response == gtk.RESPONSE_OK:
+                print fname
+            else:
+                return
+        #reader = vtkNiftiImageReader()
+        #reader.SetFileName(fname)
+        #reader.Update()
 
-            print fname
-            base, ext = os.path.splitext(fname)
-            brik_fname= "%s.BRIK" % base
-            brikfile = file(brik_fname)
-            brikfile.seek(0,2)
-            brikfile_length = brikfile.tell()
-            print "brikfile_length is " , brikfile_length, "divided by xdim*ydim is " , (float(brikfile_length))/(float(brik_xdim)*float(brik_ydim))
-            print brikfile
+        pars = Params()
+        
+        if fname.endswith(".nii.gz"):
+            pars.extension=".".join(fname.split(".")[-2:])
+            pars.pattern=".".join(fname.split(os.path.sep)[-1].split(".")[:-2])
+        #elif fname.endswith(".nii"):
+        #    pars.extension=".nii"
+        else: 
+            pars.extension=".".join(fname.split(".")[-1:])
+            pars.pattern=".".join(fname.split(os.path.sep)[-1].split(".")[:-1])
+        print "pars.extension", pars.extension
+        
+        print "pars.pattern", pars.pattern
+        pars.dir=os.path.dirname(fname)#sep.join(fname.split(os.path.sep)[:-1])
+        print "pars.dir", pars.dir
+
+        pars.readerClass='vtkNiftiImageReader'
+        reader=widgets.get_reader(pars)
+        pars.first=1
+        pars.last=reader.GetDepth()
+
+        print "reader=", reader
+        if not reader:
+            print "hit cancel, see if we can survive"
+        else:
+            pars=widgets.get_params()
+            pars=widgets.validate(pars)
+
+            imageData = reader.GetOutput()
+
+            #stupid workaround, somehow imageData.Extent is not written. dunno why
+            #maybe its in vtkImageImportFromArray
+            imageData.SetExtent(reader.GetDataExtent())
+          
+            print "loc3djr_maintoolbar.load_mri(): reader.GetOutput() is " , imageData
+            print "load_mri(): imageData.SetSpacing(", reader.GetDataSpacing(), " )"
+            imageData.SetSpacing(reader.GetDataSpacing())
+            print "calling EventHandler().notify('set image data', imageData)"
+            EventHandler().notify('set image data', imageData)
+            print "calling EventHandler().setNifti()"
+            EventHandler().setNifti(reader.GetQForm(),reader.GetDataSpacing())
+
+        ### #  not currently used
+        ###dialog = gtk.FileSelection('Choose .HEAD file')
+        ###dialog.set_transient_for(widgets['dlgReader'])
+        ###dialog.set_filename(widgets['entryInfoFile'].get_text() or
+        ###                    shared.get_last_dir())
+        ###response = dialog.run()
+        ###fname = dialog.get_filename()
+        ###dialog.destroy()
+        ###if response == gtk.RESPONSE_OK:
+        ###    d = afni_header_read(fname)
+        ###    brik_dimensions = d['DATASET_DIMENSIONS']
+        ###    print "header.ORIGIN: ", d['ORIGIN']
+        ###    print "header.DATASET_DIMENSIONS: ", d['DATASET_DIMENSIONS']
+        ###    print "header.HISTORY_NOTE: ", d['HISTORY_NOTE']
+        ###    print "header.DELTA: ", d['DELTA']
+        ###    brik_xdim = brik_dimensions[0]
+        ###    brik_ydim = brik_dimensions[1]
+        ###    brik_zdim = brik_dimensions[2]
+
+        ###    print fname
+        ###    base, ext = os.path.splitext(fname)
+        ###    brik_fname= "%s.BRIK" % base
+        ###    brikfile = file(brik_fname)
+        ###    brikfile.seek(0,2)
+        ###    brikfile_length = brikfile.tell()
+        ###    print "brikfile_length is " , brikfile_length, "divided by xdim*ydim is " , (float(brikfile_length))/(float(brik_xdim)*float(brik_ydim))
+        ###    print brikfile
 
             
     def load_vtk(self, *args):
         
         dialog = gtk.FileSelection('Choose .vtk file')
+        dialog.set_filename(shared.get_last_dir())
         dialog.set_transient_for(widgets['dlgReader'])
         dialog.set_filename(widgets['entryInfoFile'].get_text() or
                             shared.get_last_dir())
@@ -317,7 +380,10 @@ class MainToolbar(MyToolbar):
             imageData.SetSpacing(reader.GetDataSpacing())
             print "calling EventHandler().notify('set image data', imageData)"
             EventHandler().notify('set image data', imageData)
-            
+            if type(reader) == vtkNiftiImageReader:
+                print "calling EventHandler().setNifti()"
+                #XXX EventHandler().setNifti(reader.GetFilename())
+                EventHandler().setNifti(reader.GetQForm())
 
     def save_as(self, button):
 

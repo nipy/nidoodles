@@ -1,7 +1,9 @@
 import math
 import vtk
+import copy
 
 from image_reader import widgets
+import numpy as n
 
 class Marker(vtk.vtkActor):
     """
@@ -98,6 +100,15 @@ class Marker(vtk.vtkActor):
         label = self.get_label()
         s = label + ',' + ','.join(map(str, (x,y,z,radius,r,g,b)))
         return s
+
+    def convert_coordinates(self,QForm,spacing):
+        R=QForm[:3,:3]
+        T=QForm[:-1,-1]
+        x=n.array(self.get_center())
+        x=n.dot(R,x/spacing)+T
+        copy_self=self.deep_copy()
+        copy_self.set_center(x)
+        return copy_self
 
     def from_string(s):
         #todo; use csv module

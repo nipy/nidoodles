@@ -6,7 +6,7 @@ import gtk
 from gtk import gdk
 from GtkGLExtVTKRenderWindowInteractor import GtkGLExtVTKRenderWindowInteractor
 
-from pbrainlib.gtkutils import error_msg, simple_msg, ButtonAltLabel, \
+from gtkutils import error_msg, simple_msg, ButtonAltLabel, \
      str2posint_or_err, str2posnum_or_err, ProgressBarDialog, make_option_menu
 from matplotlib.cbook import Bunch
 
@@ -31,6 +31,11 @@ class SurfRenderWindow(GtkGLExtVTKRenderWindowInteractor, Viewer):
         
         self.renderer = vtk.vtkRenderer()
         self.renWin = self.GetRenderWindow()
+
+        #XXX XXX XXX my anaglyph stuff
+        #self.renWin.SetStereoRender(1)
+        #self.renWin.SetStereoTypeToRedBlue()
+
         self.renWin.AddRenderer(self.renderer)
         self.interactor = self.renWin.GetInteractor()
         self.renderer.SetBackground(0,0,0)

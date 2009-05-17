@@ -41,6 +41,8 @@ class EventHandler:
     labelsOn = 1
     observers = {}
     selected = {}
+    __NiftiQForm=None
+    __NiftiSpacings=(1.0,1.0,1.0)
 
     def __init__(self):
         self.__dict__ = self.__sharedState            
@@ -99,16 +101,33 @@ class EventHandler:
 
 
     def save_markers_as(self, fname):
-        fh = file(fname, 'w')
         self.markers.InitTraversal()
         numMarkers = self.markers.GetNumberOfItems()
-        lines = []
+        lines = []; conv_lines = []
+
         for i in range(numMarkers):
             marker = self.markers.GetNextActor()
             if marker is None: continue
-            lines.append(marker.to_string())
+            else:
+                #XXX if self.__Nifti:
+                if self.__NiftiQForm is not None:
+                    conv_marker=marker.convert_coordinates(self.__NiftiQForm,self.__NiftiSpacings)
+                    #XXX conv_marker=marker.convert_coordinates(QForm)
+                    conv_lines.append(conv_marker.to_string())
+
+                lines.append(marker.to_string())
         lines.sort()
+
+        fh = file(fname, 'w')
         fh.write('\n'.join(lines) + '\n')
+        if self.__NiftiQForm is not None:
+            fn = file(fname+".conv", 'w') #only needed for nifti, but what the hell
+            conv_lines.sort()
+            fn.write('\n'.join(conv_lines) + '\n')
+
+    def setNifti(self,QForm,spacings):
+        self.__NiftiQForm=QForm
+        self.__NiftiSpacings=spacings
 
     def set_vtkactor(self, vtkactor):
         print "EventHandler.set_vtkactor()"

@@ -144,6 +144,7 @@ class PlaneWidgetsXYZ(MarkerWindowInteractor):
             marker, label = args
             marker.set_label(label)
             
+            print "Create VTK-Text", marker.get_label()
             text = vtk.vtkVectorText()
             text.SetText(marker.get_label())
             textMapper = vtk.vtkPolyDataMapper()
@@ -219,8 +220,10 @@ class PlaneWidgetsXYZ(MarkerWindowInteractor):
         textActor.SetCamera(self.camera)
         textActor.GetProperty().SetColor(marker.get_label_color())
         if EventHandler().get_labels_on():
+            print "VisibilityOn"
             textActor.VisibilityOn()
         else:
+            print "VisibilityOff"
             textActor.VisibilityOff()
 
 
@@ -235,7 +238,7 @@ class PlaneWidgetsXYZ(MarkerWindowInteractor):
 
     def _plane_widget_boilerplate(self, pw, key, color, index, orientation):
 
-        print "PlaneWidgetsXYZ._plane_widget_boilerplate(", orientation, ")"
+        print "PlaneWidgetsXYZ._plane_widget_boilerplate(", index , orientation,")"
         pw.TextureInterpolateOn()
         #pw.SetResliceInterpolateToCubic()
         pw.SetKeyPressActivationValue(key)
