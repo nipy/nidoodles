@@ -9,7 +9,7 @@ from GtkGLExtVTKRenderWindow import GtkGLExtVTKRenderWindow
 
 from scipy import array
 
-from pbrainlib.gtkutils import error_msg, simple_msg, ProgressBarDialog,\
+from gtkutils import error_msg, simple_msg, ProgressBarDialog,\
      str2posint_or_err, str2posnum_or_err, str2int_or_err
 from shared import shared
 

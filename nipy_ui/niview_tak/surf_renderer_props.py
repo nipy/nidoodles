@@ -5,7 +5,7 @@ import vtk
 import gtk
 from gtk import gdk
 
-from pbrainlib.gtkutils import error_msg, simple_msg, ButtonAltLabel, \
+from gtkutils import error_msg, simple_msg, ButtonAltLabel, \
      str2posint_or_err, str2posnum_or_err, ProgressBarDialog, make_option_menu
 from matplotlib.cbook import Bunch
 
