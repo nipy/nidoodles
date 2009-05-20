@@ -8,6 +8,9 @@
 # Based on various examples by Gael Varoquaux
 #
 
+import threading
+import time
+
 import numpy as np
 
 from enthought.traits.api import HasTraits, DelegatesTo, Range, Instance, \
@@ -22,7 +25,6 @@ from enthought.mayavi.core.ui.mayavi_scene import MayaviScene
 from enthought.mayavi.modules.image_plane_widget import ImagePlaneWidget
 
 from nifti import NiftiImage
-
 
 class OverlayMap(HasTraits):
     """
@@ -104,25 +106,39 @@ class OverlayMap(HasTraits):
         self.configure_traits()
         pass
 
-    def _plane_callback(self, widget, event):
-        self._update_planes()
+    def _plane_callback1(self, widget, event):
+	    self._update_planes(0)
 
-    def _update_planes(self):
+    def _plane_callback2(self, widget, event):
+	    self._update_planes(1)
+
+    def _plane_callback3(self, widget, event):
+	    self._update_planes(2)
+
+    def _update_planes(self,num):
         # set the underlay positions.
         
         # TODO: it may make more sense to do this in the callback for
         # each individual plane when it is called instead of all at
         # once
-        
-        for i in range(len(self.overlays)):
+
+        #for i in range(len(self.overlays)):
+	#if widget == self.overlays[i]:
+            #    print "widget is overlay", i
+	    #elif widget == self.underlays[i]:
+            #    print "widget is underlay", i
+	    #else:
+	    #    print "widget", widget
+                
+
             # from what I can tell, all these are necessary
-            self.overlays[i].ipw.update_traits()
-            self.underlays[i].ipw.origin = self.overlays[i].ipw.origin
-            self.underlays[i].ipw.point1 = self.overlays[i].ipw.point1
-            self.underlays[i].ipw.point2 = self.overlays[i].ipw.point2
-            self.underlays[i].ipw.update_traits()
-            self.underlays[i].ipw.update_placement()
-            #self.underlays[i].scene.render()
+        self.underlays[num].ipw.update_traits()
+        self.overlays[num].ipw.origin = self.underlays[num].ipw.origin
+        self.overlays[num].ipw.point1 = self.underlays[num].ipw.point1
+        self.overlays[num].ipw.point2 = self.underlays[num].ipw.point2
+        self.overlays[num].ipw.update_traits()
+        self.overlays[num].ipw.update_placement()
+        #self.overlays[num].scene.render()
                       
     @on_trait_change('scene.activated')
     def _create_plot(self):
@@ -150,9 +166,15 @@ class OverlayMap(HasTraits):
             else:
                 # use it
                 under.module_manager.scalar_lut_manager.lut.table = self.under_lut.table
-            # turn off the interaction
-            under.ipw.interaction = False
 
+            # add the interaction event
+	    if orient == "x_axes":
+                under.ipw.add_observer("InteractionEvent", self._plane_callback1)
+	    elif orient == "y_axes":
+                under.ipw.add_observer("InteractionEvent", self._plane_callback2)
+	    else:
+                under.ipw.add_observer("InteractionEvent", self._plane_callback3)
+            
             # add it to the list
             self.underlays.append(under)
 
@@ -175,9 +197,8 @@ class OverlayMap(HasTraits):
                 # use it
                 over.module_manager.scalar_lut_manager.lut.table = self.over_lut.table
 
-            # add the interaction event
-            over.ipw.add_observer("InteractionEvent", self._plane_callback)
-            
+            # turn off the interaction
+            over.ipw.interaction = False
             # append 
             self.overlays.append(over)
 
@@ -255,7 +276,8 @@ if __name__ == "__main__":
 
     # let's try it out
     # XXX: This will break without files there
+    #stat = OverlayMap(under_image=NiftiImage('/home/thorsten/struct_brain.nii.gz'),
+    #                  over_image=NiftiImage('/home/thorsten/struct_brain.nii.gz'))
     stat = OverlayMap(under_image=NiftiImage('TT_icbm452.nii.gz'),
                       over_image=NiftiImage('stats.nii.gz'))
 
-    
