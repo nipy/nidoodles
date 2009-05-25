@@ -14,7 +14,7 @@ import time
 import numpy as np
 
 from enthought.traits.api import HasTraits, DelegatesTo, Range, Instance, \
-        on_trait_change, Array, Float, List, Bool
+        on_trait_change, Array, Float, List, Bool, Enum
 from enthought.traits.ui.api import View, Item, HGroup, HSplit, Group, \
      spring, RangeEditor, VGroup, VSplit
 from enthought.tvtk.pyface.scene_editor import SceneEditor
@@ -58,6 +58,11 @@ class OverlayMap(HasTraits):
     x_visible = Bool(True)
     y_visible = Bool(True)
     z_visible = Bool(True)
+
+    # Which colormap to use 
+    colormap = Enum("hot", 
+                    "jet",
+                    "autumn")
     
     def __init__(self, under_image, over_image):
         """
@@ -103,6 +108,8 @@ class OverlayMap(HasTraits):
         else:
             raise ValueError("over_image must be a NiftiImage, ndarray, or file.")
 
+        self.__over_image = np.ma.masked_invalid(self.__over_image)
+
         self.configure_traits()
         pass
 
@@ -146,11 +153,13 @@ class OverlayMap(HasTraits):
         mlab = self.scene.mlab
 
         # generate the scalar_fields
-        over = mlab.pipeline.scalar_field(self.__over_image)
+        over = mlab.pipeline.scalar_field(np.ma.masked_invalid(self.__over_image).filled(0))
         #over_thresh = mlab.pipeline.threshold(over,low=self.__over_image.mean())
-        under = mlab.pipeline.scalar_field(self.__under_image.data.T)
+        under = mlab.pipeline.scalar_field(np.ma.masked_invalid(self.__under_image.data.T).filled(0))
 
         # create the planes for the x,y,z axes
+        self.underlays = []
+        self.overlays = []
         for orient in ['x_axes','y_axes','z_axes']:
             # first the underlay
             # TODO: fix the slice_index, which is a hack
@@ -181,7 +190,7 @@ class OverlayMap(HasTraits):
             # set up the overlay
             # TODO: fix the slice_index, which is a hack
             over = mlab.pipeline.image_plane_widget(over,
-                                                    colormap='hot',
+                                                    colormap=self.colormap,
                                                     slice_index=92,
                                                     plane_opacity=0,
                                                     plane_orientation=orient)
@@ -203,14 +212,18 @@ class OverlayMap(HasTraits):
             self.overlays.append(over)
 
         # set the overlay upper bounds range
-        self._over_hi_min = self.__over_image.min()
-        self._over_hi_max = self.__over_image.max()
-        self.over_hi = self.__over_image.max()
+        over_min = np.ma.masked_invalid(self.__over_image).min()
+        over_max = np.ma.masked_invalid(self.__over_image).max()
+        over_mean = np.ma.masked_invalid(self.__over_image).mean()
+        print "mmm:", over_min, over_max, over_mean
+        self._over_hi_min = float(over_min) #self.__over_image.min()
+        self._over_hi_max = float(over_max) #self.__over_image.max()
+        self.over_hi = over_max #self.__over_image.max()
 
         # set the overlay lower bounds range
-        self._over_low_min = self.__over_image.min()
-        self._over_low_max = self.__over_image.max()
-        self.over_low = self.__over_image.mean()
+        self._over_low_min = float(over_min) #self.__over_image.min()
+        self._over_low_max = float(over_max) #self.__over_image.max()
+        self.over_low = over_mean #self.__over_image.mean()
 
     #@on_trait_change('over_hi')
     def _over_hi_changed(self):
@@ -252,22 +265,33 @@ class OverlayMap(HasTraits):
         self.underlays[plane_id].visible = bool_val
         self.overlays[plane_id].visible = bool_val
 
+    def _colormap_changed(self):
+        print self.colormap
+        for o in self.overlays:
+            #TODO: Change colormap, don't know how exactly
+            #print o.module_manager.scalar_lut_manager.lut
+            pass
+
     # define the view
-    # TODO: I don't know why the Group labels are not showing up
     view = View(
         VSplit(
             Group(Item('scene', editor=SceneEditor(scene_class=MayaviScene), 
                        height=500, width=500, show_label=False)),
-            Group(Item('over_low', label="Lower Thresh"),
-                  Item('over_hi', label="Upper Thresh"),
-                  label="Overlay Properties",
-                  show_border=True),
-            HGroup(Item('x_visible'),
-                   Item('y_visible'),
-                   Item('z_visible'),
-                   label="Plane Properties",
-                   show_border=True),
+            Group(
+                Group(Item('over_low', label="Lower Thresh"),
+                      Item('over_hi', label="Upper Thresh"),
+                      label="Overlay Properties",
+                      show_border=True),
             ),
+            Group(
+                HGroup(Item('x_visible'),
+                       Item('y_visible'),
+                       Item('z_visible'),
+                       Item('colormap'),
+                       label="Plane visibility + colormap",
+                       show_border=True),
+            ),
+        ),
         resizable=True,
         title='Overlay Viewer')
     
@@ -276,8 +300,8 @@ if __name__ == "__main__":
 
     # let's try it out
     # XXX: This will break without files there
-    #stat = OverlayMap(under_image=NiftiImage('/home/thorsten/struct_brain.nii.gz'),
-    #                  over_image=NiftiImage('/home/thorsten/struct_brain.nii.gz'))
-    stat = OverlayMap(under_image=NiftiImage('TT_icbm452.nii.gz'),
-                      over_image=NiftiImage('stats.nii.gz'))
+    stat = OverlayMap(under_image=NiftiImage('/home/thorsten/struct_brain.nii.gz'),
+                      over_image=NiftiImage('/home/thorsten/struct_brain.nii.gz'))
+    #stat = OverlayMap(under_image=NiftiImage('TT_icbm452.nii.gz'),
+    #                  over_image=NiftiImage('stats.nii.gz'))
 
