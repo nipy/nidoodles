@@ -27,7 +27,7 @@ class MainWindow(HasTraits):
     # mpl figure
     figure = Instance(Figure)
 
-    # Range slider for selecing slice to fiew
+    # Range slider for selecing slice to view
     slice_index_low = Int(0)   # These have to be trait ints or they don't work
     slice_index_high = Int(91) # with the dynamic updating of the Range slider.
     slice_index = Range(low='slice_index_low',
@@ -91,6 +91,9 @@ class MainWindow(HasTraits):
             self.img.set_slice_plane(_slice_planes[2])
         else:
             raise AttributeError('Unknown slice plane')
+
+        # update image array
+        self.img.update_data()
 
         # update figure data
         self.img_plot.set_data(self.img.data)

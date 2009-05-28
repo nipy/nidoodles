@@ -35,26 +35,33 @@ class ImageData(object):
         self.filename = filename
         print 'Opening file:', filename
         self.axes_order = self._axes_order_from_orientation()
-        self.set_slice_plane()
+        self.update_data()
 
-    def set_slice_plane(self, plane=None):
-        if plane is None:
-            plane = self.curr_slice_plane
-        self.curr_slice_plane = plane
-        if plane is _slice_planes[0]:
+    def update_data(self):
+        # Make sure our index is valid before using it
+        self.set_slice_index()
+        # Set data array based on current slice index
+        if self.curr_slice_plane is _slice_planes[0]:
             self.data = self._axial_slice(self.curr_slice_index)
-        elif plane is _slice_planes[1]:
+        elif self.curr_slice_plane is _slice_planes[1]:
             self.data = self._sagittal_slice(self.curr_slice_index)
-        elif plane is _slice_planes[2]:
-            self.data = self._coronal_slice(self.curr_slice_index)
         else:
-            raise IndexError('Unknown slice plane:' % plane)
+            self.data = self._coronal_slice(self.curr_slice_index)
+        
+    def set_slice_plane(self, plane):
+        # XXX Should check for valid slice plane arg.
+        self.curr_slice_plane = plane
 
-    def set_slice_index(self, index=0):
-        if self.curr_slice_index != index:
-            # XXX Need to check the index is in the range of the slice axes.
-            self.curr_slice_index = index
-            self.set_slice_plane()
+    def set_slice_index(self, index=None):
+        if index is None:
+            # If we're here we are probably just making sure the
+            # current index is within range
+            index = self.curr_slice_index
+        # Check index is within range of the axes
+        min, max = self.get_range()
+        if index > max:
+            index = max
+        self.curr_slice_index = index
 
     def get_affine(self):
         """Return 4x4 affine."""

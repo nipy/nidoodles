@@ -131,6 +131,7 @@ class CanvasFrame(wx.Frame):
 
     def update_image(self):
         """Update data in the matplotlib figure."""
+        self.img.update_data()
         self.img_plot.set_data(self.img.data)
         self.draw()
 
