@@ -144,11 +144,6 @@ class ImageData(object):
         axes_order = {'x':2-xindx, 'y':2-yindx, 'z':2-zindx}
         return index_slicing, axes_order
 
-    def _index_slice(self, x, y, z, t):
-        index_slicing, axes_order = self._orient_map(x, y, z, t)
-        # Slice the image using the orientation mapping 
-        return self.img[index_slicing[2], index_slicing[1], index_slicing[0]]
-
     def _axial_slice(self, zindex):
         """Return axial slice of the image. Assume tzyx ordering."""
         slice_order = {self.axes_order['x']:slice(None),
