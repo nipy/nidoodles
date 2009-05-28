@@ -12,39 +12,23 @@ from mpl_figure import MPLFigureEditor
 from matplotlib.figure import Figure
 import matplotlib.cm as cm
 
-import numpy as np
-
 from image import ImageData, _slice_planes
 
-class MatplotlibImage(object):
-    def __init__(self, figure, data=None):
-        self.fig = figure
-        if data is None:
-            # fill in data with small array to create plots
-            self.data = np.empty((100, 100), dtype='int16')
-        
-    def set_data(self, data):
-        raise NotImplementedError
-
-    def draw(self):
-        """Force canvas to redraw the axes."""
-        if self.fig.canvas is not None:
-            self.fig.canvas.draw()
-
-
-class SingleImage(MatplotlibImage):
+class SingleImage(object):
     """Matplotlib figure with a single Axes object."""
 
-    def __init__(self, figure, data=None):
+    def __init__(self, figure, data):
         """Update a matplotlib figure with one subplot.
 
         Parameters
         ----------
         fig : matplotlib.figure.Figure object
-        data : array-like, optional
+        data : array-like
 
         """
         super(SingleImage, self).__init__(figure, data)
+        self.fig = figure
+        self.data = data
         self.axes = self.fig.add_subplot(111)
         self.axes.imshow(self.data, origin='lower', interpolation='nearest',
                          cmap=cm.gray)
@@ -63,21 +47,10 @@ class SingleImage(MatplotlibImage):
         self.axes.set_xlim((0, xdim))
         self.axes.set_ylim((0, ydim))
 
-
-class VolumeImage(object):
-    """Matplotlib figure with 3 Axes' showing a full volumne."""
-    def __init__(self, figure, data=None):
-        super(VolumeImage, self).__init__(figure, data)
-        #self.axes = self.fig.add_subplot(2,2,1)
-        for plt in range(3):
-            self.fig.add_subplot(2, 2, plt+1)
-            self.fig.gca().imshow(self.data, origin='lower', 
-                                  interpolation='nearest',
-                                  cmap=cm.gray)
-
-    def set_data(self, data):
-        """Update data in matplotlib figure."""
-        raise NotImplementedError
+    def draw(self):
+        """Force canvas to redraw the axes."""
+        if self.fig.canvas is not None:
+            self.fig.canvas.draw()
 
 
 class MainWindow(HasTraits):
@@ -91,13 +64,10 @@ class MainWindow(HasTraits):
     slice_plane = Enum('Axial', 'Sagittal', 'Coronal')
     affine = Array(Float, (4,4))
 
-    def __init__(self, filename):
-        # XXX: Need to remove dependency of filename on construction
-        # soon.  Already some of the calls below depend on this.  User
-        # should be able to open the app and then specify the file.
+    def __init__(self):
         super(MainWindow, self).__init__()
         self.img = ImageData()
-        self.img_plot = SingleImage(self.figure)
+        self.img_plot = SingleImage(self.figure, self.img.data)
 
     def update_affine(self):
         self.affine = self.img.get_affine()
@@ -202,43 +172,6 @@ class MainWindow(HasTraits):
     # only for pyface.
     #status_bar_manager = StatusBarManager()
 
-
-def _axial_nifti_slice(img, zindex, xlim=None, ylim=None, t=0):
-    """Return axial slice of the image. Assume xyzt ordering."""
-    
-    if img.ndim is 4:
-        img = img[:, :, :, t]
-    #xdim, ydim, zdim = img.shape
-    if xlim is None:
-        xlim = slice(None)
-    if ylim is None:
-        ylim = slice(None)
-    return img[xlim, ylim, zindex]
-
-def _coronal_nifti_slice(img, yindex, xlim=None, zlim=None, t=0):
-    """Return coronal slice of the image."""
-
-    if img.ndim is 4:
-        img = img[:, :, :, t]
-    if xlim is None:
-        xlim = slice(None)
-    if zlim is None:
-        zlim = slice(None)
-    return img[xlim, yindex, zlim]
-
-def _sagittal_nifti_slice(img, xindex, ylim=None, zlim=None, t=0):
-    """Return sagittal slice of the image."""
-
-    if img.ndim is 4:
-        img = img[:, :, :, t]
-    if not ylim:
-        ylim = slice(None)
-    if not zlim:
-        zlim = slice(None)
-    return img[xindex, ylim, zlim]
-
-
 if __name__ == '__main__':
-    fsl_fn = os.path.expanduser('~/local/fsl/data/standard/avg152T1.nii.gz')
-    MainWindow(fsl_fn).configure_traits() #view='volume_view'
+    MainWindow().configure_traits()
 
