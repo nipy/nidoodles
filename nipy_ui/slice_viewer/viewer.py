@@ -17,58 +17,26 @@ from enthought.pyface.action.api import MenuBarManager, MenuManager
 
 from mpl_figure import MPLFigureEditor
 from matplotlib.figure import Figure
-import matplotlib.cm as cm
 
-from image import ImageData, _slice_planes
-
-class SingleImage(object):
-    """Matplotlib figure with a single Axes object."""
-
-    def __init__(self, figure, data):
-        """Update a matplotlib figure with one subplot.
-
-        Parameters
-        ----------
-        fig : matplotlib.figure.Figure object
-        data : array-like
-
-        """
-        super(SingleImage, self).__init__(figure, data)
-        self.fig = figure
-        self.data = data
-        self.axes = self.fig.add_subplot(111)
-        self.axes.imshow(self.data, origin='lower', interpolation='nearest',
-                         cmap=cm.gray)
-        
-    def set_data(self, data):
-        """Update data in the matplotlib figure."""
-        self.axes.images[0].set_data(data)
-        # BUG: When we slice the nipy image, data is still a
-        # nipy image but the _data attr is now a numpy array, not
-        # a pyniftiio object.  We take advantage of this bug to
-        # access the max and min luminance values.
-        vmin = data._data.min()
-        vmax = data._data.max()
-        self.axes.images[0].set_clim(vmin, vmax)
-        ydim, xdim = data.shape
-        self.axes.set_xlim((0, xdim))
-        self.axes.set_ylim((0, ydim))
-
-    def draw(self):
-        """Force canvas to redraw the axes."""
-        if self.fig.canvas is not None:
-            self.fig.canvas.draw()
+from image import ImageData, _slice_planes, SingleImage
 
 
 class MainWindow(HasTraits):
     """Main window for the viewer built using Traits."""
-    # Traited attributes
+
+    # mpl figure
     figure = Instance(Figure)
+
+    # Range slider for selecing slice to fiew
     slice_index_low = Int(0)   # These have to be trait ints or they don't work
     slice_index_high = Int(91) # with the dynamic updating of the Range slider.
     slice_index = Range(low='slice_index_low',
                         high='slice_index_high')
+
+    # Radio box for selecting orthogonal slice
     slice_plane = Enum(_slice_planes)
+
+    # Affine TextCtrl
     affine = Array(Float, (4,4))
 
     def __init__(self):

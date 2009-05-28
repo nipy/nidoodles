@@ -7,6 +7,7 @@ nipy ordering)
 """
 
 import numpy as np
+import matplotlib.cm as cm
 
 from nipy.io.api import load_image
 
@@ -181,3 +182,43 @@ def _make_3d(img, t=0):
         img = img[t, :, :, :]
     return img
 """
+
+
+class SingleImage(object):
+    """Matplotlib figure with a single Axes object."""
+
+    def __init__(self, figure, data):
+        """Update a matplotlib figure with one subplot.
+
+        Parameters
+        ----------
+        fig : matplotlib.figure.Figure object
+        data : array-like
+
+        """
+        super(SingleImage, self).__init__(figure, data)
+        self.fig = figure
+        self.data = data
+        self.axes = self.fig.add_subplot(111)
+        self.axes.imshow(self.data, origin='lower', interpolation='nearest',
+                         cmap=cm.gray)
+        
+    def set_data(self, data):
+        """Update data in the matplotlib figure."""
+        self.axes.images[0].set_data(data)
+        # BUG: When we slice the nipy image, data is still a
+        # nipy image but the _data attr is now a numpy array, not
+        # a pyniftiio object.  We take advantage of this bug to
+        # access the max and min luminance values.
+        vmin = data._data.min()
+        vmax = data._data.max()
+        self.axes.images[0].set_clim(vmin, vmax)
+        ydim, xdim = data.shape
+        self.axes.set_xlim((0, xdim))
+        self.axes.set_ylim((0, ydim))
+
+    def draw(self):
+        """Force canvas to redraw the axes."""
+        if self.fig.canvas is not None:
+            self.fig.canvas.draw()
+

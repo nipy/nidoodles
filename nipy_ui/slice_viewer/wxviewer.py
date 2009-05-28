@@ -15,7 +15,7 @@ from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from matplotlib.figure import Figure
 import matplotlib.cm as cm
 
-from image import ImageData, _slice_planes
+from image import ImageData, _slice_planes, SingleImage
 
 # Menu IDs
 ID_ABOUT=101
@@ -32,6 +32,8 @@ HEIGHT = 600
 class CanvasFrame(wx.Frame):
 
     def __init__(self, parent=None, id=wx.ID_ANY, title="Simple wx viewer"):
+
+        # Initialize wx window
         wx.Frame.__init__(self, parent, id, title, size=(WIDTH, HEIGHT))
 
         # Window dimensions are used to size the splitter proportions.
@@ -41,45 +43,39 @@ class CanvasFrame(wx.Frame):
         # Figure Panel
         self.fig_panel = wx.Panel(self.splitter, -1)
 
-        # Image data
+        # Initialize image data
         self.img = ImageData()
+        # Initialize matplotlib figure
         self.figure = Figure()
-        self.axes = self.figure.add_subplot(111)
-        self.axes.imshow(self.img.data, origin='lower', 
-                                 interpolation='nearest',
-                                 cmap=cm.gray)
+        self.img_plot = SingleImage(self.figure, self.img.data)
 
-        # First param to FigureCanvas must be self.panel or the
-        # matplotlib figure doesn't resize when the window resizes!
-        self.canvas = FigureCanvas(self.fig_panel, -1, self.figure)
-        
+        # Initialize Canvas and figure sizer
+        self.figure.canvas = FigureCanvas(self.fig_panel, -1, self.figure)
         self.fig_sizer = wx.BoxSizer(wx.HORIZONTAL)
-        self.fig_sizer.Add(self.canvas, 1, wx.LEFT | wx.TOP | wx.GROW)
-        self.canvas.SetMinSize((100, 100))
+        self.fig_sizer.Add(self.figure.canvas, 1, wx.LEFT | wx.TOP | wx.GROW)
+        self.figure.canvas.SetMinSize((100, 100))
         self.fig_panel.SetSizer(self.fig_sizer)
 
-        #
-        # Control Panel and widgets
-        #
+        # Initialize Control Panel for control widgets
         self.ctrl_panel = wx.Panel(self.splitter, -1)
         self.ctrl_sizer = wx.BoxSizer(wx.VERTICAL)
 
-        # affine
+        # Affine TextCtrl
+        # StaticBox for label
         box = wx.StaticBox(self.ctrl_panel, -1, 'Affine Transform:')
         bsizer = wx.StaticBoxSizer(box, wx.VERTICAL)
-
+        # GridSizer to handle layout of 16 TextCtrl widgets
         self.gridsizer = wx.GridSizer(4, 4, 2, 2)
         self.affine_txt = []
         for elem in range(16):
             self.affine_txt.append(wx.TextCtrl(self.ctrl_panel, -1, '0.0',
                                                size=(60, -1),
                                                style=wx.TE_READONLY))
-            
         self.gridsizer.AddMany(self.affine_txt)
         bsizer.Add(self.gridsizer, 0)
         self.ctrl_sizer.Add(bsizer, 0)
 
-        # Radio box
+        # Radio box for selecting orthogonal slice
         self.slice_plane = wx.RadioBox(
             self.ctrl_panel, -1, "View Slice:", wx.DefaultPosition, 
             wx.DefaultSize, _slice_planes, 1, wx.RA_SPECIFY_COLS
@@ -89,7 +85,7 @@ class CanvasFrame(wx.Frame):
         #rb.SetLabel("wx.RadioBox")
         self.ctrl_sizer.Add(self.slice_plane, 0, wx.ALL, 10)
 
-        # Slider 
+        # Range slider for selecing slice to view
         # wx.Slider(parent, id, value, min, max, position, size, style)
         self.slider = wx.Slider(self.ctrl_panel, -1, 0, 0, 100, (-1, -1),
                                 (-1, -1), wx.SL_HORIZONTAL |
@@ -106,7 +102,6 @@ class CanvasFrame(wx.Frame):
 
         # Setting up the menu.
         filemenu = wx.Menu()
-        #filemenu.Append(ID_ABOUT, "&About"," Information about this program")
         filemenu.Append(ID_OPEN, "&Open", "Open a document")
         filemenu.AppendSeparator()
         filemenu.Append(ID_EXIT,"E&xit"," Terminate the program")
@@ -148,7 +143,7 @@ class CanvasFrame(wx.Frame):
         self.draw()
 
     def draw(self):
-        self.canvas.draw()
+        self.img_plot.draw()
 
     def EvtSelectSlice(self, evt):
         self.img.set_slice_plane(_slice_planes[evt.GetInt()])
@@ -165,18 +160,7 @@ class CanvasFrame(wx.Frame):
 
     def update_image(self):
         """Update data in the matplotlib figure."""
-        data = self.img.data
-        self.axes.images[0].set_data(data)
-        # BUG: When we slice the nipy image, data is still a
-        # nipy image but the _data attr is now a numpy array, not
-        # a pyniftiio object.  We take advantage of this bug to
-        # access the max and min luminance values.
-        vmin = data._data.min()
-        vmax = data._data.max()
-        self.axes.images[0].set_clim(vmin, vmax)
-        ydim, xdim = data.shape
-        self.axes.set_xlim((0, xdim))
-        self.axes.set_ylim((0, ydim))
+        self.img_plot.set_data(self.img.data)
         self.draw()
 
 
