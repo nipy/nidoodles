@@ -15,7 +15,6 @@ import matplotlib.cm as cm
 import numpy as np
 
 from nipy.io.api import load_image
-from nipy.io.files import coerce2nifti
 
 from image import ImageData, _slice_planes
 
@@ -117,14 +116,6 @@ class MainWindow(HasTraits):
         self.update_affine()
         self.update_slice_index()
 
-    def reload_image(self):
-        self.load_image(self.filename)
-
-    def image2nifti(self):
-        self.img = coerce2nifti(self.img, standard=True)
-        self.update_affine()
-        self.update_slice_index()
-
     def update_affine(self):
         self.affine = self.img.affine
         
@@ -198,14 +189,7 @@ class MainWindow(HasTraits):
             self.update_slice_index()
     menu_open_action = Action(name='Open Nifti', action='open_menu')
 
-    # image2nifti
-    # reload_image
-    reload_image_action = Action(name='Reload Image', action='reload_image')
-    image2nifti_action = Action(name='Coerce Image To Nifti', 
-                                action='image2nifti')
     file_menubar = MenuBar(Menu(menu_open_action,
-                                reload_image_action,
-                                image2nifti_action,
                                 name='File'))
     
     # Items
