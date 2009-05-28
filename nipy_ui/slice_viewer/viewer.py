@@ -10,27 +10,14 @@ from enthought.pyface.action.api import MenuBarManager, MenuManager
 
 from mpl_figure import MPLFigureEditor
 from matplotlib.figure import Figure
-#from scipy import * 
-#import wx
+import matplotlib.cm as cm
 
 import numpy as np
-
-# XXX: Should not use pylab!
-import pylab
 
 from nipy.io.api import load_image
 from nipy.io.files import coerce2nifti
 
-class FileOpenAction(Action):
-    """Trait UI Action for opening files."""
-    accelerator = Str('Ctrl-O')
-    def perform(self):
-        print 'In FileOpenAction perform'
-        dlg = FileDialog()
-        dlg.open()
-        if dlg.return_code == OK:
-            return dlg.path
-
+from image import ImageData, _slice_planes
 
 class MatplotlibImage(object):
     def __init__(self, figure, data=None):
@@ -63,7 +50,7 @@ class SingleImage(MatplotlibImage):
         super(SingleImage, self).__init__(figure, data)
         self.axes = self.fig.add_subplot(111)
         self.axes.imshow(self.data, origin='lower', interpolation='nearest',
-                         cmap=pylab.cm.gray)
+                         cmap=cm.gray)
         
     def set_data(self, data):
         """Update data in the matplotlib figure."""
@@ -89,7 +76,7 @@ class VolumeImage(object):
             self.fig.add_subplot(2, 2, plt+1)
             self.fig.gca().imshow(self.data, origin='lower', 
                                   interpolation='nearest',
-                                  cmap=pylab.cm.gray)
+                                  cmap=cm.gray)
 
     def set_data(self, data):
         """Update data in matplotlib figure."""
@@ -100,12 +87,11 @@ class MainWindow(HasTraits):
     """Main window for the viewer."""
     # Traited attributes
     figure = Instance(Figure)
-    slice_index_low = Int(0) # These have to be trait ints or they don't work
+    slice_index_low = Int(0)   # These have to be trait ints or they don't work
     slice_index_high = Int(91) # with the dynamic updating of the Range slider.
     slice_index = Range(low='slice_index_low',
-                        high='slice_index_high') # Range(0,91)
+                        high='slice_index_high')
     slice_plane = Enum('Axial', 'Sagittal', 'Coronal')
-    #affine = Array(Float, (4,4), editor=ArrayEditor(width = -10))
     affine = Array(Float, (4,4))
 
     def __init__(self, filename):
@@ -154,7 +140,7 @@ class MainWindow(HasTraits):
         """Initialize slice_index attr without triggering the
         on_trait_change method.
         """
-        return 50
+        return 0
 
 
     #
@@ -169,15 +155,6 @@ class MainWindow(HasTraits):
     # Data Model methods
     #
     def update_image_slicing(self):
-        # Couldn't work out easy slicing in a dispatch table
-        #disp_table = {'Axial' : slice(index, None, None),
-        #            'Sagittal' : slice(None, index, None),
-        #            'Coronal' : slice(None, None, index)}
-        #ind = disp_table[self.slice_plane]
-        #self.data = self.img[ind]
-
-        # XXX: The slicing should be handled by nipy so we don't make
-        # assumptions about the axes order?
 
         # XXX: BUG: self.slice_index is set by the slider of the
         # current slice.  When we switch the slice plane, this index
@@ -202,7 +179,7 @@ class MainWindow(HasTraits):
         else:
             raise AttributeError('Unknown slice plane')
         # update range slider
-        self.slice_index_low = 0 # Is this ever not zero?
+        self.slice_index_low = 0
         self.slice_index_high = high
 
     def image_show(self):
@@ -241,23 +218,9 @@ class MainWindow(HasTraits):
                           editor=EnumEditor(values=_slice_opts),
                           style='custom')
  
-
-    """
-    # The single slice view
-    traits_view = View(VSplit(Group(fig_item),
-                              Group(slice_opt_item,
-                                    Item('slice_index'),
-                                    )
-                              ),
-                       #menubar=StandardMenuBar,
-                       menubar=file_menubar,
-                       width=0.75, height=0.75,
-                       resizable=True)
-                       """
-
     affine_item = Item('affine', label='Affine', style='readonly')
     # BUG: The rendering with the 'readonly' style creates an ugly wx
-    #"multi-line" control.  style='readonly'
+    # "multi-line" control.
 
     traits_view = View(HSplit(Group(fig_item),
                               Group(affine_item,
@@ -267,7 +230,6 @@ class MainWindow(HasTraits):
                        menubar=file_menubar,
                        width=0.80, height=0.80,
                        resizable=True)
-
 
     # Status bar
     # XXX: Don't know where to import this from?  Documentation is
