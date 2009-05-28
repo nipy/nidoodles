@@ -1,3 +1,10 @@
+"""Simple image viewer using nipy, matplotlib and traits.  
+
+The purpose of this code was to learn traits and explore the GUI
+functionality in comparison with wxWidgets.  It was not written with
+the intent of being used as a long term tool.
+"""
+
 import os
 
 from enthought.traits.api import (HasTraits, Instance, Int, Range, Enum, Str,
@@ -54,24 +61,23 @@ class SingleImage(object):
 
 
 class MainWindow(HasTraits):
-    """Main window for the viewer."""
+    """Main window for the viewer built using Traits."""
     # Traited attributes
     figure = Instance(Figure)
     slice_index_low = Int(0)   # These have to be trait ints or they don't work
     slice_index_high = Int(91) # with the dynamic updating of the Range slider.
     slice_index = Range(low='slice_index_low',
                         high='slice_index_high')
-    slice_plane = Enum('Axial', 'Sagittal', 'Coronal')
+    slice_plane = Enum(_slice_planes)
     affine = Array(Float, (4,4))
 
     def __init__(self):
         super(MainWindow, self).__init__()
+        # Initialize our nipy image object
         self.img = ImageData()
+        # Initialize our matplotlib figure
         self.img_plot = SingleImage(self.figure, self.img.data)
 
-    def update_affine(self):
-        self.affine = self.img.get_affine()
-        
     #
     # Initializers for Traited attrs
     #
@@ -99,6 +105,9 @@ class MainWindow(HasTraits):
     #
     # Data Model methods
     #
+    def update_affine(self):
+        self.affine = self.img.get_affine()
+        
     def update_image_slicing(self):
 
         # XXX: BUG: self.slice_index is set by the slider of the

@@ -1,3 +1,9 @@
+"""Simple image viewer using nipy, matplotlib and wxWidgets.
+
+The purpose of this code was to learn wxWidgets and compare creating a
+GUI with Traits.  It was not written with the intent of being used as
+a long term tool.
+"""
 
 import os
 import wx
