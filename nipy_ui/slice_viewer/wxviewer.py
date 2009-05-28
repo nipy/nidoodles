@@ -119,10 +119,28 @@ class CanvasFrame(wx.Frame):
         self.Show(True)
 
 
+    def OnPaint(self, event):
+        self.draw()
+
+    def draw(self):
+        self.img_plot.draw()
+
+    def update_slider(self):
+        rng = self.img.get_range()
+        self.slider.SetRange(rng[0], rng[1])
+
+    def update_image(self):
+        """Update data in the matplotlib figure."""
+        self.img_plot.set_data(self.img.data)
+        self.draw()
+
     def set_affine(self, affine):
         for ind, val in enumerate(affine.flat):
             self.affine_txt[ind].ChangeValue(str(val))
 
+    #
+    # Event handlers
+    #
     def OnExit(self, event):
         self.Close(True)
 
@@ -139,12 +157,6 @@ class CanvasFrame(wx.Frame):
         dlg.Destroy()
         self.update_image()
 
-    def OnPaint(self, event):
-        self.draw()
-
-    def draw(self):
-        self.img_plot.draw()
-
     def EvtSelectSlice(self, evt):
         self.img.set_slice_plane(_slice_planes[evt.GetInt()])
         self.update_slider()
@@ -153,15 +165,6 @@ class CanvasFrame(wx.Frame):
     def EvtSlider(self, evt):
         self.img.set_slice_index(self.slider.GetValue())
         self.update_image()
-
-    def update_slider(self):
-        rng = self.img.get_range()
-        self.slider.SetRange(rng[0], rng[1])
-
-    def update_image(self):
-        """Update data in the matplotlib figure."""
-        self.img_plot.set_data(self.img.data)
-        self.draw()
 
 
 class MyApp(wx.App):
