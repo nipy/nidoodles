@@ -14,8 +14,6 @@ import matplotlib.cm as cm
 
 import numpy as np
 
-from nipy.io.api import load_image
-
 from image import ImageData, _slice_planes
 
 class MatplotlibImage(object):
@@ -98,26 +96,11 @@ class MainWindow(HasTraits):
         # soon.  Already some of the calls below depend on this.  User
         # should be able to open the app and then specify the file.
         super(MainWindow, self).__init__()
-        self.img = None
-        self.filename = filename
+        self.img = ImageData()
         self.img_plot = SingleImage(self.figure)
-        self.load_image(self.filename)
-        self.update_image_slicing()
-        self.image_show()
-                
-
-    def load_image(self, filename):
-        self.img = load_image(filename)
-        self.filename = filename
-        # Make sure our image is in a standard nifti space so we can
-        # access slice planes easily.  Note this can be slow for large
-        # images!
-        #self.img = coerce2nifti(tmpimg, standard=True)
-        self.update_affine()
-        self.update_slice_index()
 
     def update_affine(self):
-        self.affine = self.img.affine
+        self.affine = self.img.get_affine()
         
     #
     # Initializers for Traited attrs
@@ -139,6 +122,7 @@ class MainWindow(HasTraits):
     #
     @on_trait_change('slice_index, slice_plane')
     def update_slice_index(self):
+        self.img.set_slice_index(self.slice_index)
         self.update_image_slicing()
         self.image_show()
 
@@ -153,24 +137,21 @@ class MainWindow(HasTraits):
         # this.
 
         if self.slice_plane == 'Axial':
-            #data = self.img[self.slice_index, :, :]
-            data = _axial_nifti_slice(self.img, self.slice_index)
-            self.img_plot.set_data(data)
-            high = self.img.shape[0]
+            self.img.set_slice_plane(_slice_planes[0])
         elif self.slice_plane == 'Sagittal':
-            #data = self.img[:, :, self.slice_index]
-            data = _sagittal_nifti_slice(self.img, self.slice_index)
-            self.img_plot.set_data(data)
-            high = self.img.shape[1]
+            self.img.set_slice_plane(_slice_planes[1])
         elif self.slice_plane == 'Coronal':
-            #data = self.img[:, self.slice_index, :]
-            data = _coronal_nifti_slice(self.img, self.slice_index)
-            self.img_plot.set_data(data)
-            high = self.img.shape[2]
+            self.img.set_slice_plane(_slice_planes[2])
         else:
             raise AttributeError('Unknown slice plane')
+
+        # update figure data
+        self.img_plot.set_data(self.img.data)
+
+        # get range information for slider
+        low, high = self.img.get_range()
         # update range slider
-        self.slice_index_low = 0
+        self.slice_index_low = low
         self.slice_index_high = high
 
     def image_show(self):
@@ -185,7 +166,8 @@ class MainWindow(HasTraits):
         dlg = FileDialog()
         dlg.open()
         if dlg.return_code == OK:
-            self.load_image(dlg.path)
+            self.img.load_image(dlg.path)
+            self.update_affine()
             self.update_slice_index()
     menu_open_action = Action(name='Open Nifti', action='open_menu')
 
