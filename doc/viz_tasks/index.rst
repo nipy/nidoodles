@@ -72,7 +72,7 @@ Misc
 
   * Example image from Mike Trumpis' viewer:
   
-    .. image:: images/mike_viewer.png
+    .. image:: ../images/mike_viewer.png
 
 * Horizontal, vertical and temporal profiles with a prespecified width.
 
