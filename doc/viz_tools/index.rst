@@ -4,8 +4,9 @@
  Current Visualization Tools
 =============================
 
-This should be a list of current visualization tools and features we
-like about them.  One can even include snapshots.
+The purpose of this document is to record the current visualization
+tools that people are using and list the best features of those
+tools so that we may replicate or improve upon them in our tools.
 
 See :ref:`review_template` for the template we are following for
 reviewing the visualization tools.
@@ -13,8 +14,8 @@ reviewing the visualization tools.
 .. toctree::
    :maxdepth: 2
 
-   fslview
    spmviz
+   fslview
    mricron
    slicer3d
    osirix

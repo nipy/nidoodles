@@ -4,8 +4,10 @@
  Common Visualization Tasks
 ============================
 
-Below is a list of common visualization tasks done in neuroimaging.
-Common or desired visualization features are also mixed in.
+Below is a list of common visualization tasks in neuroimaging.  The
+list also contains common or desired visualization features.  Ideally
+we will have visualization tools that meet the majority of these
+tasks/features.
 
 
 2D visualization
