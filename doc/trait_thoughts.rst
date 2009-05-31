@@ -87,3 +87,28 @@ Cons:
     was the only way I found to get some of the widgets working.
 
 
+Simple Slice Viewer
+-------------------
+
+I created a simple slice viewer in both Traits and wxPython.  There
+were several GUI features I specifically wanted to test out in this
+exercise:
+
+* Creating a window frame with a splitter
+* General layout of the widgets
+* Embedding a matplotlib figure which resizes properly with the window.
+* Menus
+* Some standard widgets:
+
+  * Radio box
+  * Text control
+  * Slider
+
+The Traited viewer:
+
+  .. image:: images/trait_viewer.png
+
+The wxPython viewer:
+
+  .. image:: images/wxviewer.png
+
