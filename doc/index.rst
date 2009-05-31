@@ -18,6 +18,7 @@ Contents:
    viz_tasks/index
    viz_tools/index
    reggie
+   trait_thoughts
 
 Indices and tables
 ==================
