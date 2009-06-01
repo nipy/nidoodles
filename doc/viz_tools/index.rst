@@ -27,5 +27,7 @@ reviewing the visualization tools.
    afni_suma
    brainstorm
    voxbo
+   mrVista
 
 
+   
