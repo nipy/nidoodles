@@ -28,7 +28,7 @@ Scriptable orthogonal slice viewer
 It's not often scripted.  Nice set of tools to review the current affine
 transform, and supplement it with further transforms:
 
-.. image:: images/spm_display.png
+.. image:: ../images/spm_display.png
 
 
 .. _spm-checkreg:
@@ -42,7 +42,7 @@ the SPM graphics window, and can only usefully display about 6 images
 without the images becoming too small, and the display becoming too
 slow:
 
-.. image:: images/checkreg.png
+.. image:: ../images/checkreg.png
 
 .. _spm-orth-overlays:
 
@@ -52,20 +52,20 @@ SPM image overlays
 You can overlay activation images onto anatomical images with the SPM
 orthogonal slice viewer, with the ``Add blobs`` interface:
 
-.. image:: images/add_blobs.png
+.. image:: ../images/add_blobs.png
 
 By a tiny bit of scripting, you can add continuous true color overlays::
 
    spm_orthviews('addtruecolourimage')
 
-.. image:: images/add_truecolor.jpg
+.. image:: ../images/add_truecolor.jpg
 
 SPM Lightbox-like
 ~~~~~~~~~~~~~~~~~
 
 There is simple slice by slice viewing plumbed into the main results section:
 
-.. image:: images/results_sections.png
+.. image:: ../images/results_sections.png
 
 SPM 3D rendering
 ~~~~~~~~~~~~~~~~
@@ -79,7 +79,7 @@ surface from canonical views.  The rendering then uses these bitmaps and
 information about where each pixel is in relationship to the surface, to
 create the rendering:
 
-.. image:: images/basic_render.png
+.. image:: ../images/basic_render.png
 
 
 

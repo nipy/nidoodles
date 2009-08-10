@@ -32,21 +32,21 @@ Features missing:
 Single slice view
 ~~~~~~~~~~~~~~~~~
 
-.. image:: images/fsl_single.png
+.. image:: ../images/fsl_single.png
 
 .. _fsl-ortho-slice:
 
 Orthogonal slice view
 ~~~~~~~~~~~~~~~~~~~~~
 
-.. image:: images/fsl_ortho.png
+.. image:: ../images/fsl_ortho.png
 
 .. _fsl-lightbox:
 
 Lightbox view
 ~~~~~~~~~~~~~
 
-.. image:: images/fsl_lightbox.png
+.. image:: ../images/fsl_lightbox.png
 
 
 
