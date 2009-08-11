@@ -1,4 +1,4 @@
-.. _viz_tools:
+.. _viz-tools:
 
 =============================
  Current Visualization Tools
