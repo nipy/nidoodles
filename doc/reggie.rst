@@ -28,6 +28,7 @@ choose from:
 - 2D slice-plane overlays (including images with different dimensions)
 - 2D Side-by-side orthogonal slice-plane views (similar to SPM's
   *Check Reg*)
+- 2D ROIs (filled or outline mode)
 
 Manipulators
 ^^^^^^^^^^^^
@@ -45,7 +46,17 @@ Graphical tools for manual interaction with images.
   - This would allow you to enter a specific transformation value, say
     for rotation.
 
-- Mouse: pan, rotate, zoom
+- Rich Listbox
+
+  - This would be similar to the GIMP layer functionality. It would allow choosing
+  
+    - data for overlay
+    - turn overlay on or off
+    - order of overlays
+    - different colormap for each overlay
+    - scaling of intensity range for each overlay
+
+- Mouse: pan, rotate, zoom, contrast, brightness (a la siemens viewer)
 
 Information
 ^^^^^^^^^^^
@@ -117,13 +128,16 @@ Features are completed.
 
 - 3D View
 
-  - Although useful and pretty, not a commonly needed feature for
-    image registration.
+  - Cortical surface-mesh  visualization with overlay for planes
+  - Support for overlays on surface-meshes (activation, morphological and other properties)
+  - Tensor and track visualization
+  - Combining 3D surfaces with volume data might be one of the most useful ways to register structural and other images. see: http://www.ncbi.nlm.nih.gov/pubmed/19573611
 
 - Scroll through 4D images.
 
   - Using a slider, scroll through time and view the image frames.
   - Ability to choose one frame to realign the other frames to.
+  - Be able to see time series corresponding to some ROI
 
 - 4D movie mode
 
@@ -135,4 +149,8 @@ Features are completed.
   - One may want to have many views on a volume, possibly with
     different transforms applied.  Ex: original, normalized, template
     image, etc..
+
+- Editor
+  
+  Being able to manipulate ROIs on surfaces and volumes
 
