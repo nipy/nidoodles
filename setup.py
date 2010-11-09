@@ -3,8 +3,6 @@
 from distutils.core import setup
 import sys
 
-import nipy_ui 
-
 
 # For some commands, use setuptools
 if len(set(('develop', 'sdist', 'release', 'bdist_egg', 'bdist_rpm',
@@ -19,14 +17,14 @@ if not 'extra_setuptools_args' in globals():
     extra_setuptools_args = dict()
 
 
-setup(name='nipy_ui',
-      version=nipy_ui.__version__,
-      summary='Tools to run long-running scripts as jobs.',
-      author='Gael Varoquaux',
-      author_email='gael.varoquaux@normalesup.org',
-      url='https://launchpad.net/joblib',
+setup(name='nidoodles',
+      version='0.1',
+      summary='Work-in-progress documents and draft code for the nipy projects',
+      author='nipy developers',
+      author_email='nipy-devel@neuroimaging.scipy.org',
+      url='http://nipy.org/nidoodles',
       description="""
-User interfaces and visualization for NeuroImaging in Python.
+Home for assorted documents and code fragments about the nipy projects
 """,
       long_description=file('README.txt').read(),
       license='BSD',
@@ -43,7 +41,5 @@ User interfaces and visualization for NeuroImaging in Python.
           'Topic :: Utilities',
       ],
       platforms='any',
-      #package_data={'nipy_ui.data': ['nipy_ui/data/*'],},
       packages=['nipy_ui', 'nipy_ui.test'],
       **extra_setuptools_args)
-

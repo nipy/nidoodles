@@ -1,11 +1,11 @@
 Nipy UI: user interface and visualization for neuroimaging in Python
 =====================================================================
 
-The purpose of this document is to collect information from the nipy
-community regarding their visualization needs and desires.  
+The purpose of this part of the *nidoodles* document is to collect information
+from the nipy community regarding their visualization needs and desires.  
 
 There are many visualization tools for brain imaging, with different
-strengths and weaknesses.  
+strengths and weaknesses.
 
 We would like to document the pros/cons of these applications and do our
 best to combine the most useful functionality in our visualization
