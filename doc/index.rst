@@ -10,7 +10,6 @@ To edit these docs, please clone or fork from github::
 
     git clone git://github.com/nipy/nidoodles.git
 
-
 Note that the "id" in "nidoodles" is silent.
 
 Contents:

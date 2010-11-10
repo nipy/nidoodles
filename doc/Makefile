@@ -1,5 +1,11 @@
 # Makefile for Sphinx documentation
 #
+# To change the default sourceforge username for doc upload, change the SF_USER
+# environment variable with export SF_USER=garyfallidis' or similar, then 'make
+# upload-website'
+SF_USER ?= matthewbrett
+WWW_SF=$(SF_USER),nipy@web.sourceforge.net:htdocs/nidoodles/
+RSYNC_SF=rsync -rzhvp --delete --chmod=Dg+s,g+rw
 
 # You can set these variables from the command line.
 SPHINXOPTS    =
@@ -86,3 +92,16 @@ doctest:
 	$(SPHINXBUILD) -b doctest $(ALLSPHINXOPTS) build/doctest
 	@echo "Testing of doctests in the sources finished, look at the " \
 	      "results in build/doctest/output.txt."
+
+pdf: pdf-stamp
+pdf-stamp: latex
+	cd build/latex && make all-pdf
+	touch $@
+
+# This one udates for the specific user named at the top of the makefile
+upload-website: upload-website-$(SF_USER)
+
+# Upload webiste to sourceforg
+upload-website-%: html pdf
+	$(RSYNC_SF) build/latex/* build/html/* $(WWW_SF)
+
